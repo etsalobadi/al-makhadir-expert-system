@@ -9,8 +9,13 @@ import { useAuth } from '../../context/AuthContext';
 import { NAVIGATION_ITEMS } from '../../utils/constants';
 import * as LucideIcons from 'lucide-react';
 
-// Type for icon names that ensures they exist in lucide-react
-type IconName = keyof typeof LucideIcons;
+// Type for navigation item that only allows icon names that exist in lucide-react
+type NavigationItem = {
+  path: string;
+  name: string;
+  icon: string;
+  roles: string[];
+};
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -43,12 +48,13 @@ const Sidebar: React.FC = () => {
       
       <ScrollArea className="flex-1 px-3 py-4">
         <div className="flex flex-col gap-1">
-          {filteredNavItems.map((item) => {
+          {filteredNavItems.map((item: NavigationItem) => {
             const isActive = location.pathname === item.path;
             
-            // Get the icon component directly from LucideIcons
-            // Check if the icon exists in LucideIcons
-            const IconComponent = LucideIcons[item.icon as IconName] || LucideIcons.File;
+            // Check if the icon exists in LucideIcons and render it properly
+            // Using a type assertion to tell TypeScript that we're accessing a valid component
+            const IconComponent = (LucideIcons as Record<string, React.ComponentType<any>>)[item.icon] || 
+                                 LucideIcons.File;
             
             return (
               <Link key={item.path} to={item.path}>
