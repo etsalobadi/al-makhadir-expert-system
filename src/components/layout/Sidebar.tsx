@@ -7,9 +7,10 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '../../context/AuthContext';
 import { NAVIGATION_ITEMS } from '../../utils/constants';
-import * as Icons from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
-type IconName = keyof typeof Icons;
+// Type for icon names that ensures they exist in lucide-react
+type IconName = keyof typeof LucideIcons;
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -44,7 +45,10 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col gap-1">
           {filteredNavItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const Icon = Icons[item.icon as IconName];
+            
+            // Get the icon component directly from LucideIcons
+            // Check if the icon exists in LucideIcons
+            const IconComponent = LucideIcons[item.icon as IconName] || LucideIcons.File;
             
             return (
               <Link key={item.path} to={item.path}>
@@ -57,7 +61,7 @@ const Sidebar: React.FC = () => {
                       : "text-gray-200 hover:bg-white/5 hover:text-white"
                   )}
                 >
-                  {Icon && <Icon size={18} />}
+                  <IconComponent size={18} />
                   <span>{item.name}</span>
                 </Button>
               </Link>
