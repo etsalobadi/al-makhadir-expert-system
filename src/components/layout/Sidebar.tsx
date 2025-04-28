@@ -8,8 +8,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '../../context/AuthContext';
 import { NAVIGATION_ITEMS } from '../../utils/constants';
 import * as LucideIcons from 'lucide-react';
+import { File } from 'lucide-react'; // Default icon import
 
-// Type for navigation item that only allows icon names that exist in lucide-react
+// Type for navigation item
 type NavigationItem = {
   path: string;
   name: string;
@@ -51,10 +52,17 @@ const Sidebar: React.FC = () => {
           {filteredNavItems.map((item: NavigationItem) => {
             const isActive = location.pathname === item.path;
             
-            // Check if the icon exists in LucideIcons and render it properly
-            // Using a type assertion to tell TypeScript that we're accessing a valid component
-            const IconComponent = (LucideIcons as Record<string, React.ComponentType<any>>)[item.icon] || 
-                                 LucideIcons.File;
+            // Get the icon component safely
+            let IconComponent = File; // Default to File icon
+            
+            // Only check if the icon exists in LucideIcons and is a valid component
+            if (
+              typeof item.icon === 'string' && 
+              item.icon in LucideIcons &&
+              typeof LucideIcons[item.icon as keyof typeof LucideIcons] === 'function'
+            ) {
+              IconComponent = LucideIcons[item.icon as keyof typeof LucideIcons];
+            }
             
             return (
               <Link key={item.path} to={item.path}>
