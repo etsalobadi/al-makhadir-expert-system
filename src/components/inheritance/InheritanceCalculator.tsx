@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Card,
@@ -26,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Trash, Calculate, FileText, Download } from 'lucide-react';
+import { Plus, Trash, Calculator, FileText, Download } from 'lucide-react';
 import { calculateInheritanceShares, convertEnglishToArabicNumbers } from '../../utils/arabicUtils';
 import { formatCurrency } from '../../utils/helpers';
 
@@ -102,7 +101,7 @@ const InheritanceCalculator: React.FC = () => {
                           selectedOption?.value === 'daughter' ||
                           selectedOption?.value === 'grandmother' 
                           ? 'female' : 'male';
-            return { ...heir, [field]: value, gender };
+            return { ...heir, [field]: value as string, gender };
           }
           return { ...heir, [field]: value };
         }
@@ -116,17 +115,14 @@ const InheritanceCalculator: React.FC = () => {
   };
 
   const calculateShares = () => {
-    // Calculate net estate value
     const netEstate = estate.total - estate.debts - estate.funeral - estate.will;
     
-    // Filter out invalid heirs
     const validHeirs = heirs.filter(heir => heir.relationship && heir.count > 0);
     
     if (validHeirs.length === 0) {
       return;
     }
     
-    // Use the helper function to calculate shares
     const shares = calculateInheritanceShares(validHeirs, netEstate);
     
     setCalculatedShares(shares);
@@ -140,7 +136,6 @@ const InheritanceCalculator: React.FC = () => {
       estate,
       calculatedShares,
     });
-    // In a real application, this would call a backend API to generate a PDF report
   };
 
   return (
@@ -303,7 +298,7 @@ const InheritanceCalculator: React.FC = () => {
               onClick={calculateShares}
               disabled={heirs.length === 0 || heirs.some(h => !h.relationship)}
             >
-              <Calculate className="h-4 w-4 ml-2" />
+              <Calculator className="h-4 w-4 ml-2" />
               حساب الأنصبة
             </Button>
           </div>
