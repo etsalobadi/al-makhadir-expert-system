@@ -31,7 +31,25 @@ export const useComplaints = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setComplaints(data || []);
+      
+      // Transform the data to match our interface
+      const transformedData: Complaint[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        type: item.type as Complaint['type'],
+        status: item.status as Complaint['status'],
+        priority: item.priority as Complaint['priority'],
+        submitted_by: item.submitted_by,
+        submitted_date: item.submitted_date,
+        assigned_to: item.assigned_to,
+        resolution: item.resolution,
+        attachments: Array.isArray(item.attachments) ? item.attachments : [],
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }));
+      
+      setComplaints(transformedData);
     } catch (error) {
       console.error('Error fetching complaints:', error);
       toast({
@@ -54,12 +72,29 @@ export const useComplaints = () => {
 
       if (error) throw error;
       
-      setComplaints(prev => [data, ...prev]);
+      // Transform the returned data
+      const transformedData: Complaint = {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        type: data.type as Complaint['type'],
+        status: data.status as Complaint['status'],
+        priority: data.priority as Complaint['priority'],
+        submitted_by: data.submitted_by,
+        submitted_date: data.submitted_date,
+        assigned_to: data.assigned_to,
+        resolution: data.resolution,
+        attachments: Array.isArray(data.attachments) ? data.attachments : [],
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      
+      setComplaints(prev => [transformedData, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء الشكوى بنجاح"
       });
-      return data;
+      return transformedData;
     } catch (error) {
       console.error('Error creating complaint:', error);
       toast({
@@ -82,12 +117,29 @@ export const useComplaints = () => {
 
       if (error) throw error;
       
-      setComplaints(prev => prev.map(c => c.id === id ? data : c));
+      // Transform the returned data
+      const transformedData: Complaint = {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        type: data.type as Complaint['type'],
+        status: data.status as Complaint['status'],
+        priority: data.priority as Complaint['priority'],
+        submitted_by: data.submitted_by,
+        submitted_date: data.submitted_date,
+        assigned_to: data.assigned_to,
+        resolution: data.resolution,
+        attachments: Array.isArray(data.attachments) ? data.attachments : [],
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      
+      setComplaints(prev => prev.map(c => c.id === id ? transformedData : c));
       toast({
         title: "نجح",
         description: "تم تحديث الشكوى بنجاح"
       });
-      return data;
+      return transformedData;
     } catch (error) {
       console.error('Error updating complaint:', error);
       toast({

@@ -49,7 +49,40 @@ export const useUserSettings = () => {
       if (error && error.code !== 'PGRST116') throw error;
       
       if (data) {
-        setSettings(data);
+        // Transform the data to match our interface
+        const transformedData: UserSettings = {
+          id: data.id,
+          user_id: data.user_id,
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          language: data.language || 'ar',
+          timezone: data.timezone || 'Asia/Riyadh',
+          notifications: typeof data.notifications === 'object' && data.notifications !== null 
+            ? data.notifications as UserSettings['notifications']
+            : {
+                email: true,
+                sms: false,
+                push: true,
+                system: true
+              },
+          security: typeof data.security === 'object' && data.security !== null
+            ? data.security as UserSettings['security']
+            : {
+                twoFactor: false,
+                sessionTimeout: '30',
+                passwordExpiry: '90'
+              },
+          system: typeof data.system === 'object' && data.system !== null
+            ? data.system as UserSettings['system']
+            : {
+                autoBackup: true,
+                backupFrequency: 'daily',
+                dataRetention: '365',
+                auditLog: true
+              }
+        };
+        setSettings(transformedData);
       } else {
         // Create default settings if none exist
         const defaultSettings: Omit<UserSettings, 'id'> = {
@@ -85,7 +118,28 @@ export const useUserSettings = () => {
           .single();
           
         if (insertError) throw insertError;
-        setSettings(newData);
+        
+        // Transform the inserted data
+        const transformedNewData: UserSettings = {
+          id: newData.id,
+          user_id: newData.user_id,
+          name: newData.name || '',
+          email: newData.email || '',
+          phone: newData.phone || '',
+          language: newData.language || 'ar',
+          timezone: newData.timezone || 'Asia/Riyadh',
+          notifications: typeof newData.notifications === 'object' && newData.notifications !== null 
+            ? newData.notifications as UserSettings['notifications']
+            : defaultSettings.notifications,
+          security: typeof newData.security === 'object' && newData.security !== null
+            ? newData.security as UserSettings['security']
+            : defaultSettings.security,
+          system: typeof newData.system === 'object' && newData.system !== null
+            ? newData.system as UserSettings['system']
+            : defaultSettings.system
+        };
+        
+        setSettings(transformedNewData);
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -112,7 +166,27 @@ export const useUserSettings = () => {
 
       if (error) throw error;
       
-      setSettings(data);
+      // Transform the updated data
+      const transformedData: UserSettings = {
+        id: data.id,
+        user_id: data.user_id,
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        language: data.language || 'ar',
+        timezone: data.timezone || 'Asia/Riyadh',
+        notifications: typeof data.notifications === 'object' && data.notifications !== null 
+          ? data.notifications as UserSettings['notifications']
+          : settings.notifications,
+        security: typeof data.security === 'object' && data.security !== null
+          ? data.security as UserSettings['security']
+          : settings.security,
+        system: typeof data.system === 'object' && data.system !== null
+          ? data.system as UserSettings['system']
+          : settings.system
+      };
+      
+      setSettings(transformedData);
       
       // Log the change
       await supabase.from('audit_log').insert([{
@@ -128,7 +202,7 @@ export const useUserSettings = () => {
         description: "تم حفظ الإعدادات بنجاح"
       });
       
-      return data;
+      return transformedData;
     } catch (error) {
       console.error('Error updating settings:', error);
       toast({

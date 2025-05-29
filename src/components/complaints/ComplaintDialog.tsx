@@ -20,7 +20,8 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({ trigger }) => {
     description: '',
     type: 'technical' as Complaint['type'],
     priority: 'medium' as Complaint['priority'],
-    submitted_by: 'المستخدم الحالي' // This should come from auth context
+    submitted_by: 'المستخدم الحالي', // This should come from auth context
+    status: 'open' as Complaint['status']
   });
   const [loading, setLoading] = useState(false);
   const { createComplaint } = useComplaints();
@@ -40,7 +41,8 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({ trigger }) => {
         description: '',
         type: 'technical',
         priority: 'medium',
-        submitted_by: 'المستخدم الحالي'
+        submitted_by: 'المستخدم الحالي',
+        status: 'open'
       });
       setOpen(false);
     } catch (error) {
