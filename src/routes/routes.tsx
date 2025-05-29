@@ -7,6 +7,9 @@ import Dashboard from '../pages/Dashboard';
 import Experts from '../pages/Experts';
 import Cases from '../pages/Cases';
 import Inheritance from '../pages/Inheritance';
+import Complaints from '../pages/Complaints';
+import Reports from '../pages/Reports';
+import Settings from '../pages/Settings';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
 
@@ -44,6 +47,30 @@ const AppRoutes: React.FC = () => {
         element={
           <MainLayout>
             <Inheritance />
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/complaints" 
+        element={
+          <MainLayout>
+            <Complaints />
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/reports" 
+        element={
+          <MainLayout>
+            <Reports />
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <MainLayout>
+            <Settings />
           </MainLayout>
         } 
       />
