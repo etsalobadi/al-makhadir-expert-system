@@ -1,65 +1,22 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Search, Filter, FileText, Calendar } from 'lucide-react';
-import { formatDate } from '../../utils/helpers';
-
-interface Complaint {
-  id: string;
-  title: string;
-  description: string;
-  type: 'technical' | 'administrative' | 'legal' | 'other';
-  status: 'open' | 'processing' | 'resolved' | 'closed';
-  submittedBy: string;
-  submittedDate: Date;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  assignedTo?: string;
-}
+import { Search, FileText, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { formatDate } from '@/utils/helpers';
+import { useComplaints } from '@/hooks/useComplaints';
+import ComplaintDialog from './ComplaintDialog';
+import ComplaintViewDialog from './ComplaintViewDialog';
 
 const ComplaintsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-
-  // Mock data - in real app, this would come from API
-  const complaints: Complaint[] = [
-    {
-      id: '1',
-      title: 'مشكلة في النظام التقني',
-      description: 'عدم قدرة على الوصول إلى النظام منذ هذا الصباح',
-      type: 'technical',
-      status: 'open',
-      submittedBy: 'أحمد محمد',
-      submittedDate: new Date('2024-01-15'),
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'طلب تعديل بيانات خبير',
-      description: 'طلب تحديث معلومات الخبير في النظام',
-      type: 'administrative',
-      status: 'processing',
-      submittedBy: 'فاطمة أحمد',
-      submittedDate: new Date('2024-01-14'),
-      priority: 'medium',
-      assignedTo: 'مدير النظام'
-    },
-    {
-      id: '3',
-      title: 'استفسار قانوني',
-      description: 'استفسار حول إجراءات قسمة المواريث',
-      type: 'legal',
-      status: 'resolved',
-      submittedBy: 'محمد علي',
-      submittedDate: new Date('2024-01-13'),
-      priority: 'low'
-    }
-  ];
+  
+  const { complaints, loading } = useComplaints();
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -95,12 +52,28 @@ const ComplaintsManagement: React.FC = () => {
 
   const filteredComplaints = complaints.filter(complaint => {
     const matchesSearch = complaint.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         complaint.submittedBy.toLowerCase().includes(searchTerm.toLowerCase());
+                         complaint.submitted_by.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || complaint.status === statusFilter;
     const matchesType = typeFilter === 'all' || complaint.type === typeFilter;
     
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  // Calculate statistics
+  const stats = {
+    total: complaints.length,
+    processing: complaints.filter(c => c.status === 'processing').length,
+    resolved: complaints.filter(c => c.status === 'resolved').length,
+    resolutionRate: complaints.length > 0 ? Math.round((complaints.filter(c => c.status === 'resolved').length / complaints.length) * 100) : 0
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-judicial-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -109,10 +82,7 @@ const ComplaintsManagement: React.FC = () => {
           <h1 className="text-3xl font-bold text-judicial-primary">إدارة الشكاوى</h1>
           <p className="text-gray-600 mt-2">متابعة ومعالجة شكاوى المستخدمين</p>
         </div>
-        <Button className="bg-judicial-primary hover:bg-judicial-primary/90">
-          <Plus className="w-4 h-4 ml-2" />
-          شكوى جديدة
-        </Button>
+        <ComplaintDialog />
       </div>
 
       {/* Statistics Cards */}
@@ -125,7 +95,7 @@ const ComplaintsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">إجمالي الشكاوى</p>
-                <p className="text-2xl font-bold text-gray-900">156</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
             </div>
           </CardContent>
@@ -139,7 +109,7 @@ const ComplaintsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">قيد المعالجة</p>
-                <p className="text-2xl font-bold text-gray-900">23</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.processing}</p>
               </div>
             </div>
           </CardContent>
@@ -153,7 +123,7 @@ const ComplaintsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">محلولة</p>
-                <p className="text-2xl font-bold text-gray-900">98</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.resolved}</p>
               </div>
             </div>
           </CardContent>
@@ -167,7 +137,7 @@ const ComplaintsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">معدل الحل</p>
-                <p className="text-2xl font-bold text-gray-900">89%</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.resolutionRate}%</p>
               </div>
             </div>
           </CardContent>
@@ -225,45 +195,44 @@ const ComplaintsManagement: React.FC = () => {
         <CardHeader>
           <CardTitle>قائمة الشكاوى</CardTitle>
           <CardDescription>
-            عرض جميع الشكاوى المسجلة في النظام
+            عرض جميع الشكاوى المسجلة في النظام ({filteredComplaints.length} من {complaints.length})
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>العنوان</TableHead>
-                <TableHead>النوع</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead>الأولوية</TableHead>
-                <TableHead>المقدم</TableHead>
-                <TableHead>التاريخ</TableHead>
-                <TableHead>الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredComplaints.map((complaint) => (
-                <TableRow key={complaint.id}>
-                  <TableCell className="font-medium">{complaint.title}</TableCell>
-                  <TableCell>{getTypeLabel(complaint.type)}</TableCell>
-                  <TableCell>{getStatusBadge(complaint.status)}</TableCell>
-                  <TableCell>{getPriorityBadge(complaint.priority)}</TableCell>
-                  <TableCell>{complaint.submittedBy}</TableCell>
-                  <TableCell>{formatDate(complaint.submittedDate)}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        عرض
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        تحديث
-                      </Button>
-                    </div>
-                  </TableCell>
+          {filteredComplaints.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              لا توجد شكاوى مطابقة لمعايير البحث
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>العنوان</TableHead>
+                  <TableHead>النوع</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead>الأولوية</TableHead>
+                  <TableHead>المقدم</TableHead>
+                  <TableHead>التاريخ</TableHead>
+                  <TableHead>الإجراءات</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredComplaints.map((complaint) => (
+                  <TableRow key={complaint.id}>
+                    <TableCell className="font-medium">{complaint.title}</TableCell>
+                    <TableCell>{getTypeLabel(complaint.type)}</TableCell>
+                    <TableCell>{getStatusBadge(complaint.status)}</TableCell>
+                    <TableCell>{getPriorityBadge(complaint.priority)}</TableCell>
+                    <TableCell>{complaint.submitted_by}</TableCell>
+                    <TableCell>{formatDate(new Date(complaint.submitted_date))}</TableCell>
+                    <TableCell>
+                      <ComplaintViewDialog complaint={complaint} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

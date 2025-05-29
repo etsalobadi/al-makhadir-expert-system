@@ -8,58 +8,58 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Settings, Bell, Shield, Globe, Database, Save } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { showSuccess } from '../../utils/helpers';
+import { User, Bell, Shield, Globe, Database, Save } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useUserSettings } from '@/hooks/useUserSettings';
 
 const SettingsManagement: React.FC = () => {
   const { user } = useAuth();
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: '',
-    language: 'ar',
-    timezone: 'Asia/Riyadh',
-    notifications: {
-      email: true,
-      sms: false,
-      push: true,
-      system: true
-    },
-    security: {
-      twoFactor: false,
-      sessionTimeout: '30',
-      passwordExpiry: '90'
-    },
-    system: {
-      autoBackup: true,
-      backupFrequency: 'daily',
-      dataRetention: '365',
-      auditLog: true
-    }
-  });
+  const { settings, loading, updateSettings } = useUserSettings();
+  const [saving, setSaving] = useState(false);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (!settings) return;
+    updateSettings({ [field]: value });
   };
 
   const handleNestedChange = (section: string, field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev] as any,
-        [field]: value
-      }
-    }));
+    if (!settings) return;
+    const currentSection = settings[section as keyof typeof settings];
+    if (typeof currentSection === 'object' && currentSection !== null) {
+      updateSettings({
+        [section]: {
+          ...currentSection,
+          [field]: value
+        }
+      });
+    }
   };
 
-  const saveSettings = () => {
-    console.log('Saving settings:', formData);
-    showSuccess('تم حفظ الإعدادات بنجاح');
+  const saveAllSettings = async () => {
+    if (!settings) return;
+    setSaving(true);
+    try {
+      await updateSettings(settings);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-judicial-primary"></div>
+      </div>
+    );
+  }
+
+  if (!settings) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        فشل في تحميل الإعدادات
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -68,9 +68,13 @@ const SettingsManagement: React.FC = () => {
           <h1 className="text-3xl font-bold text-judicial-primary">إعدادات النظام</h1>
           <p className="text-gray-600 mt-2">إدارة الحساب والتفضيلات العامة</p>
         </div>
-        <Button onClick={saveSettings} className="bg-judicial-primary hover:bg-judicial-primary/90">
+        <Button 
+          onClick={saveAllSettings} 
+          disabled={saving}
+          className="bg-judicial-primary hover:bg-judicial-primary/90"
+        >
           <Save className="w-4 h-4 ml-2" />
-          حفظ التغييرات
+          {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
         </Button>
       </div>
 
@@ -111,7 +115,7 @@ const SettingsManagement: React.FC = () => {
                   <Label htmlFor="name">الاسم الكامل</Label>
                   <Input
                     id="name"
-                    value={formData.name}
+                    value={settings.name || ''}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="أدخل الاسم الكامل"
                   />
@@ -121,7 +125,7 @@ const SettingsManagement: React.FC = () => {
                   <Input
                     id="email"
                     type="email"
-                    value={formData.email}
+                    value={settings.email || ''}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="أدخل البريد الإلكتروني"
                   />
@@ -130,7 +134,7 @@ const SettingsManagement: React.FC = () => {
                   <Label htmlFor="phone">رقم الهاتف</Label>
                   <Input
                     id="phone"
-                    value={formData.phone}
+                    value={settings.phone || ''}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="أدخل رقم الهاتف"
                   />
@@ -143,38 +147,11 @@ const SettingsManagement: React.FC = () => {
                       {user?.role === 'staff' && 'موظف'}
                       {user?.role === 'judge' && 'قاضي'}
                       {user?.role === 'expert' && 'خبير'}
+                      {!user?.role && 'مستخدم'}
                     </Badge>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>تغيير كلمة المرور</CardTitle>
-              <CardDescription>تحديث كلمة المرور للحساب</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">كلمة المرور الحالية</Label>
-                  <Input
-                    id="current-password"
-                    type="password"
-                    placeholder="أدخل كلمة المرور الحالية"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">كلمة المرور الجديدة</Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    placeholder="أدخل كلمة المرور الجديدة"
-                  />
-                </div>
-              </div>
-              <Button variant="outline">تحديث كلمة المرور</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -194,7 +171,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام الإشعارات عبر البريد الإلكتروني</p>
                   </div>
                   <Switch
-                    checked={formData.notifications.email}
+                    checked={settings.notifications.email}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'email', checked)}
                   />
                 </div>
@@ -204,7 +181,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام الإشعارات عبر الرسائل النصية</p>
                   </div>
                   <Switch
-                    checked={formData.notifications.sms}
+                    checked={settings.notifications.sms}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'sms', checked)}
                   />
                 </div>
@@ -214,7 +191,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام إشعارات النظام والتحديثات</p>
                   </div>
                   <Switch
-                    checked={formData.notifications.system}
+                    checked={settings.notifications.system}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'system', checked)}
                   />
                 </div>
@@ -224,7 +201,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام الإشعارات الفورية في المتصفح</p>
                   </div>
                   <Switch
-                    checked={formData.notifications.push}
+                    checked={settings.notifications.push}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'push', checked)}
                   />
                 </div>
@@ -248,14 +225,14 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">تفعيل التحقق بخطوتين لحماية إضافية</p>
                   </div>
                   <Switch
-                    checked={formData.security.twoFactor}
+                    checked={settings.security.twoFactor}
                     onCheckedChange={(checked) => handleNestedChange('security', 'twoFactor', checked)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>انتهاء صلاحية الجلسة (بالدقائق)</Label>
                   <Select
-                    value={formData.security.sessionTimeout}
+                    value={settings.security.sessionTimeout}
                     onValueChange={(value) => handleNestedChange('security', 'sessionTimeout', value)}
                   >
                     <SelectTrigger>
@@ -272,7 +249,7 @@ const SettingsManagement: React.FC = () => {
                 <div className="space-y-2">
                   <Label>انتهاء صلاحية كلمة المرور (بالأيام)</Label>
                   <Select
-                    value={formData.security.passwordExpiry}
+                    value={settings.security.passwordExpiry}
                     onValueChange={(value) => handleNestedChange('security', 'passwordExpiry', value)}
                   >
                     <SelectTrigger>
@@ -303,7 +280,7 @@ const SettingsManagement: React.FC = () => {
                 <div className="space-y-2">
                   <Label>اللغة</Label>
                   <Select
-                    value={formData.language}
+                    value={settings.language}
                     onValueChange={(value) => handleInputChange('language', value)}
                   >
                     <SelectTrigger>
@@ -318,7 +295,7 @@ const SettingsManagement: React.FC = () => {
                 <div className="space-y-2">
                   <Label>المنطقة الزمنية</Label>
                   <Select
-                    value={formData.timezone}
+                    value={settings.timezone}
                     onValueChange={(value) => handleInputChange('timezone', value)}
                   >
                     <SelectTrigger>
@@ -351,14 +328,14 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">تفعيل النسخ الاحتياطي التلقائي للبيانات</p>
                   </div>
                   <Switch
-                    checked={formData.system.autoBackup}
+                    checked={settings.system.autoBackup}
                     onCheckedChange={(checked) => handleNestedChange('system', 'autoBackup', checked)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>تكرار النسخ الاحتياطي</Label>
                   <Select
-                    value={formData.system.backupFrequency}
+                    value={settings.system.backupFrequency}
                     onValueChange={(value) => handleNestedChange('system', 'backupFrequency', value)}
                   >
                     <SelectTrigger>
@@ -375,7 +352,7 @@ const SettingsManagement: React.FC = () => {
                 <div className="space-y-2">
                   <Label>فترة الاحتفاظ بالبيانات (بالأيام)</Label>
                   <Input
-                    value={formData.system.dataRetention}
+                    value={settings.system.dataRetention}
                     onChange={(e) => handleNestedChange('system', 'dataRetention', e.target.value)}
                     placeholder="365"
                   />
@@ -386,7 +363,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">تسجيل جميع العمليات في النظام</p>
                   </div>
                   <Switch
-                    checked={formData.system.auditLog}
+                    checked={settings.system.auditLog}
                     onCheckedChange={(checked) => handleNestedChange('system', 'auditLog', checked)}
                   />
                 </div>

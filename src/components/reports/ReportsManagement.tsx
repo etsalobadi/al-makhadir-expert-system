@@ -3,46 +3,31 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Download, FileText, BarChart as BarChartIcon, Calendar, Users, FileSpreadsheet } from 'lucide-react';
-import { formatDate, formatNumber } from '../../utils/helpers';
+import { formatNumber } from '@/utils/helpers';
+import { useReports } from '@/hooks/useReports';
 
 const ReportsManagement: React.FC = () => {
   const [reportType, setReportType] = useState('overview');
   const [dateRange, setDateRange] = useState('month');
+  const { reportData, loading, generateReport } = useReports();
 
-  // Mock data for charts
-  const casesData = [
-    { month: 'يناير', completed: 45, pending: 12, new: 23 },
-    { month: 'فبراير', completed: 52, pending: 18, new: 31 },
-    { month: 'مارس', completed: 38, pending: 15, new: 28 },
-    { month: 'أبريل', completed: 61, pending: 22, new: 35 },
-    { month: 'مايو', completed: 55, pending: 19, new: 42 },
-    { month: 'يونيو', completed: 67, pending: 14, new: 38 }
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-judicial-primary"></div>
+      </div>
+    );
+  }
 
-  const expertsData = [
-    { name: 'خبراء عقارات', value: 45, color: '#0088FE' },
-    { name: 'خبراء مالية', value: 32, color: '#00C49F' },
-    { name: 'خبراء طبية', value: 28, color: '#FFBB28' },
-    { name: 'خبراء تقنية', value: 15, color: '#FF8042' }
-  ];
-
-  const performanceData = [
-    { day: 'السبت', efficiency: 85 },
-    { day: 'الأحد', efficiency: 92 },
-    { day: 'الاثنين', efficiency: 78 },
-    { day: 'الثلاثاء', efficiency: 88 },
-    { day: 'الأربعاء', efficiency: 95 },
-    { day: 'الخميس', efficiency: 82 }
-  ];
-
-  const generateReport = (format: 'pdf' | 'excel') => {
-    console.log(`Generating ${format} report for ${reportType} with date range ${dateRange}`);
-    // Here you would implement the actual report generation
-  };
+  if (!reportData) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        فشل في تحميل بيانات التقارير
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -54,14 +39,14 @@ const ReportsManagement: React.FC = () => {
         <div className="flex gap-2">
           <Button 
             variant="outline" 
-            onClick={() => generateReport('excel')}
+            onClick={() => generateReport('excel', reportType, dateRange)}
             className="border-green-600 text-green-600 hover:bg-green-50"
           >
             <FileSpreadsheet className="w-4 h-4 ml-2" />
             تصدير Excel
           </Button>
           <Button 
-            onClick={() => generateReport('pdf')}
+            onClick={() => generateReport('pdf', reportType, dateRange)}
             className="bg-judicial-primary hover:bg-judicial-primary/90"
           >
             <Download className="w-4 h-4 ml-2" />
@@ -80,7 +65,7 @@ const ReportsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">إجمالي القضايا</p>
-                <p className="text-2xl font-bold text-gray-900">{formatNumber(1247)}</p>
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(reportData.totalCases)}</p>
                 <p className="text-xs text-green-600">+12% عن الشهر الماضي</p>
               </div>
             </div>
@@ -95,7 +80,7 @@ const ReportsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">الخبراء النشطون</p>
-                <p className="text-2xl font-bold text-gray-900">{formatNumber(120)}</p>
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(reportData.activeExperts)}</p>
                 <p className="text-xs text-green-600">+5% عن الشهر الماضي</p>
               </div>
             </div>
@@ -110,7 +95,7 @@ const ReportsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">معدل الإنجاز</p>
-                <p className="text-2xl font-bold text-gray-900">87%</p>
+                <p className="text-2xl font-bold text-gray-900">{reportData.completionRate}%</p>
                 <p className="text-xs text-red-600">-2% عن الشهر الماضي</p>
               </div>
             </div>
@@ -125,7 +110,7 @@ const ReportsManagement: React.FC = () => {
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">متوسط وقت الحل</p>
-                <p className="text-2xl font-bold text-gray-900">15 يوم</p>
+                <p className="text-2xl font-bold text-gray-900">{reportData.averageResolutionTime} يوم</p>
                 <p className="text-xs text-green-600">-3 أيام عن الشهر الماضي</p>
               </div>
             </div>
@@ -178,7 +163,7 @@ const ReportsManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={casesData}>
+              <BarChart data={reportData.casesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -202,7 +187,7 @@ const ReportsManagement: React.FC = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={expertsData}
+                  data={reportData.expertsData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -211,7 +196,7 @@ const ReportsManagement: React.FC = () => {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {expertsData.map((entry, index) => (
+                  {reportData.expertsData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -229,7 +214,7 @@ const ReportsManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={performanceData}>
+              <LineChart data={reportData.performanceData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="day" />
                 <YAxis domain={[0, 100]} />
@@ -248,37 +233,30 @@ const ReportsManagement: React.FC = () => {
         </Card>
       </div>
 
-      {/* Recent Reports */}
+      {/* Complaints Statistics */}
       <Card>
         <CardHeader>
-          <CardTitle>التقارير الأخيرة</CardTitle>
-          <CardDescription>آخر التقارير المنتجة من النظام</CardDescription>
+          <CardTitle>إحصائيات الشكاوى</CardTitle>
+          <CardDescription>نظرة عامة على الشكاوى في النظام</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {[
-              { name: 'تقرير القضايا الشهري - يناير 2024', date: new Date('2024-01-31'), type: 'PDF', size: '2.3 MB' },
-              { name: 'إحصائيات الخبراء - الربع الأول', date: new Date('2024-01-28'), type: 'Excel', size: '1.8 MB' },
-              { name: 'تقرير الأداء الأسبوعي', date: new Date('2024-01-26'), type: 'PDF', size: '1.2 MB' },
-            ].map((report, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 rounded">
-                    <FileText className="w-5 h-5 text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{report.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {formatDate(report.date)} • {report.type} • {report.size}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 ml-1" />
-                  تحميل
-                </Button>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <p className="text-2xl font-bold text-gray-900">{reportData.complaintsStats.total}</p>
+              <p className="text-sm text-gray-600">إجمالي الشكاوى</p>
+            </div>
+            <div className="text-center p-4 bg-red-50 rounded-lg">
+              <p className="text-2xl font-bold text-red-600">{reportData.complaintsStats.open}</p>
+              <p className="text-sm text-gray-600">مفتوحة</p>
+            </div>
+            <div className="text-center p-4 bg-yellow-50 rounded-lg">
+              <p className="text-2xl font-bold text-yellow-600">{reportData.complaintsStats.processing}</p>
+              <p className="text-sm text-gray-600">قيد المعالجة</p>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <p className="text-2xl font-bold text-green-600">{reportData.complaintsStats.resolved}</p>
+              <p className="text-sm text-gray-600">محلولة</p>
+            </div>
           </div>
         </CardContent>
       </Card>

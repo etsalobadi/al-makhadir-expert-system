@@ -111,6 +111,87 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      complaints: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          resolution: string | null
+          status: string
+          submitted_by: string
+          submitted_date: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          created_at?: string
+          description: string
+          id?: string
+          priority?: string
+          resolution?: string | null
+          status?: string
+          submitted_by: string
+          submitted_date?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolution?: string | null
+          status?: string
+          submitted_by?: string
+          submitted_date?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       debts: {
         Row: {
           amount: number
@@ -391,6 +472,51 @@ export type Database = {
           status?: string
           total_estate_value?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          language: string | null
+          name: string | null
+          notifications: Json | null
+          phone: string | null
+          security: Json | null
+          system: Json | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          language?: string | null
+          name?: string | null
+          notifications?: Json | null
+          phone?: string | null
+          security?: Json | null
+          system?: Json | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          language?: string | null
+          name?: string | null
+          notifications?: Json | null
+          phone?: string | null
+          security?: Json | null
+          system?: Json | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
