@@ -62,6 +62,27 @@ export type Database = {
             referencedRelation: "heirs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_asset_distributions_asset"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_asset_distributions_division_project"
+            columns: ["division_project_id"]
+            isOneToOne: false
+            referencedRelation: "division_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_asset_distributions_heir"
+            columns: ["heir_id"]
+            isOneToOne: false
+            referencedRelation: "heirs"
+            referencedColumns: ["id"]
+          },
         ]
       }
       assets: {
@@ -104,6 +125,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "assets_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_assets_case"
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "inheritance_cases"
@@ -237,6 +265,13 @@ export type Database = {
             referencedRelation: "inheritance_cases"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_debts_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
         ]
       }
       disputes: {
@@ -273,6 +308,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "disputes_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_disputes_case"
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "inheritance_cases"
@@ -319,6 +361,13 @@ export type Database = {
             referencedRelation: "inheritance_cases"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_division_projects_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
         ]
       }
       documents: {
@@ -360,7 +409,65 @@ export type Database = {
             referencedRelation: "inheritance_cases"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_documents_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      experts: {
+        Row: {
+          created_at: string
+          email: string
+          experience_years: number | null
+          graduation_year: string | null
+          id: string
+          name: string
+          national_id: string | null
+          phone: string
+          previous_cases: number
+          qualification: string | null
+          specialty: string
+          status: string
+          university: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          experience_years?: number | null
+          graduation_year?: string | null
+          id?: string
+          name: string
+          national_id?: string | null
+          phone: string
+          previous_cases?: number
+          qualification?: string | null
+          specialty: string
+          status?: string
+          university?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          experience_years?: number | null
+          graduation_year?: string | null
+          id?: string
+          name?: string
+          national_id?: string | null
+          phone?: string
+          previous_cases?: number
+          qualification?: string | null
+          specialty?: string
+          status?: string
+          university?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       heirs: {
         Row: {
@@ -419,6 +526,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_heirs_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "heirs_case_id_fkey"
             columns: ["case_id"]
             isOneToOne: false
@@ -473,7 +587,15 @@ export type Database = {
           total_estate_value?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_inheritance_cases_expert"
+            columns: ["assigned_expert"]
+            isOneToOne: false
+            referencedRelation: "experts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_settings: {
         Row: {

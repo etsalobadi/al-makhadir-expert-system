@@ -33,9 +33,9 @@ export const useDashboardStats = () => {
 
   const fetchStats = async () => {
     try {
-      // Fetch experts stats using type casting since experts table is new
+      // Fetch experts stats
       const { data: expertsData } = await supabase
-        .from('experts' as any)
+        .from('experts')
         .select('status');
 
       // Fetch cases stats
@@ -49,7 +49,7 @@ export const useDashboardStats = () => {
         .select('status');
 
       const totalExperts = expertsData?.length || 0;
-      const activeExperts = expertsData?.filter((e: any) => e.status === 'active').length || 0;
+      const activeExperts = expertsData?.filter(e => e.status === 'active').length || 0;
       
       const totalCases = casesData?.length || 0;
       const activeCases = casesData?.filter(c => c.status === 'in_progress').length || 0;

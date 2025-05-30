@@ -26,15 +26,14 @@ export const useExperts = () => {
 
   const fetchExperts = async () => {
     try {
-      // Use direct query with type casting since experts table is new
       const { data, error } = await supabase
-        .from('experts' as any)
+        .from('experts')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       
-      setExperts((data as unknown as Expert[]) || []);
+      setExperts(data || []);
     } catch (error) {
       console.error('Error fetching experts:', error);
       toast({
@@ -50,19 +49,19 @@ export const useExperts = () => {
   const createExpert = async (expert: Omit<Expert, 'id' | 'created_at' | 'updated_at' | 'previous_cases'>) => {
     try {
       const { data, error } = await supabase
-        .from('experts' as any)
+        .from('experts')
         .insert([{ ...expert, previous_cases: 0 }])
         .select()
         .single();
 
       if (error) throw error;
       
-      setExperts(prev => [data as unknown as Expert, ...prev]);
+      setExperts(prev => [data, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء الخبير بنجاح"
       });
-      return data as unknown as Expert;
+      return data;
     } catch (error) {
       console.error('Error creating expert:', error);
       toast({
@@ -77,7 +76,7 @@ export const useExperts = () => {
   const updateExpert = async (id: string, updates: Partial<Expert>) => {
     try {
       const { data, error } = await supabase
-        .from('experts' as any)
+        .from('experts')
         .update(updates)
         .eq('id', id)
         .select()
@@ -85,12 +84,12 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(prev => prev.map(e => e.id === id ? data as unknown as Expert : e));
+      setExperts(prev => prev.map(e => e.id === id ? data : e));
       toast({
         title: "نجح",
         description: "تم تحديث الخبير بنجاح"
       });
-      return data as unknown as Expert;
+      return data;
     } catch (error) {
       console.error('Error updating expert:', error);
       toast({
@@ -105,7 +104,7 @@ export const useExperts = () => {
   const deleteExpert = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('experts' as any)
+        .from('experts')
         .delete()
         .eq('id', id);
 
