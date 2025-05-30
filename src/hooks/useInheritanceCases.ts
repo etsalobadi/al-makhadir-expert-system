@@ -32,7 +32,7 @@ export const useInheritanceCases = () => {
 
       if (error) throw error;
       
-      setCases(data || []);
+      setCases((data as InheritanceCase[]) || []);
     } catch (error) {
       console.error('Error fetching inheritance cases:', error);
       toast({
@@ -55,12 +55,12 @@ export const useInheritanceCases = () => {
 
       if (error) throw error;
       
-      setCases(prev => [data, ...prev]);
+      setCases(prev => [data as InheritanceCase, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء القضية بنجاح"
       });
-      return data;
+      return data as InheritanceCase;
     } catch (error) {
       console.error('Error creating inheritance case:', error);
       toast({
@@ -83,12 +83,12 @@ export const useInheritanceCases = () => {
 
       if (error) throw error;
       
-      setCases(prev => prev.map(c => c.id === id ? data : c));
+      setCases(prev => prev.map(c => c.id === id ? data as InheritanceCase : c));
       toast({
         title: "نجح",
         description: "تم تحديث القضية بنجاح"
       });
-      return data;
+      return data as InheritanceCase;
     } catch (error) {
       console.error('Error updating inheritance case:', error);
       toast({

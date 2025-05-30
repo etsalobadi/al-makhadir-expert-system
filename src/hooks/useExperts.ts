@@ -34,7 +34,7 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(data || []);
+      setExperts((data as Expert[]) || []);
     } catch (error) {
       console.error('Error fetching experts:', error);
       toast({
@@ -57,12 +57,12 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(prev => [data, ...prev]);
+      setExperts(prev => [data as Expert, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء الخبير بنجاح"
       });
-      return data;
+      return data as Expert;
     } catch (error) {
       console.error('Error creating expert:', error);
       toast({
@@ -85,12 +85,12 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(prev => prev.map(e => e.id === id ? data : e));
+      setExperts(prev => prev.map(e => e.id === id ? data as Expert : e));
       toast({
         title: "نجح",
         description: "تم تحديث الخبير بنجاح"
       });
-      return data;
+      return data as Expert;
     } catch (error) {
       console.error('Error updating expert:', error);
       toast({

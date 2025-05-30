@@ -33,13 +33,10 @@ export const useDashboardStats = () => {
 
   const fetchStats = async () => {
     try {
-      // Fetch experts stats using raw query since types aren't updated yet
-      const { data: expertsData, error: expertsError } = await supabase
-        .rpc('select_from_table', { table_name: 'experts', columns: 'status' })
-        .catch(async () => {
-          // Fallback: try direct query
-          return await supabase.from('experts' as any).select('status');
-        });
+      // Fetch experts stats using type casting since experts table is new
+      const { data: expertsData } = await supabase
+        .from('experts' as any)
+        .select('status');
 
       // Fetch cases stats
       const { data: casesData } = await supabase
