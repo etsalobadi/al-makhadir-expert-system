@@ -37,7 +37,7 @@ export const useInheritanceCases = () => {
       console.error('Error fetching inheritance cases:', error);
       toast({
         title: "خطأ",
-        description: "فشل في تحميل القضايا",
+        description: "فشل في تحميل قضايا الميراث",
         variant: "destructive"
       });
     } finally {
@@ -62,7 +62,7 @@ export const useInheritanceCases = () => {
       });
       return data;
     } catch (error) {
-      console.error('Error creating case:', error);
+      console.error('Error creating inheritance case:', error);
       toast({
         title: "خطأ",
         description: "فشل في إنشاء القضية",
@@ -90,7 +90,7 @@ export const useInheritanceCases = () => {
       });
       return data;
     } catch (error) {
-      console.error('Error updating case:', error);
+      console.error('Error updating inheritance case:', error);
       toast({
         title: "خطأ",
         description: "فشل في تحديث القضية",
@@ -115,7 +115,7 @@ export const useInheritanceCases = () => {
         description: "تم حذف القضية بنجاح"
       });
     } catch (error) {
-      console.error('Error deleting case:', error);
+      console.error('Error deleting inheritance case:', error);
       toast({
         title: "خطأ",
         description: "فشل في حذف القضية",

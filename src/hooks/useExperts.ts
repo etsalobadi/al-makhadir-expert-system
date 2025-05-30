@@ -26,8 +26,9 @@ export const useExperts = () => {
 
   const fetchExperts = async () => {
     try {
+      // Use direct query with type casting since experts table is new
       const { data, error } = await supabase
-        .from('experts')
+        .from('experts' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -49,7 +50,7 @@ export const useExperts = () => {
   const createExpert = async (expert: Omit<Expert, 'id' | 'created_at' | 'updated_at' | 'previous_cases'>) => {
     try {
       const { data, error } = await supabase
-        .from('experts')
+        .from('experts' as any)
         .insert([{ ...expert, previous_cases: 0 }])
         .select()
         .single();
@@ -76,7 +77,7 @@ export const useExperts = () => {
   const updateExpert = async (id: string, updates: Partial<Expert>) => {
     try {
       const { data, error } = await supabase
-        .from('experts')
+        .from('experts' as any)
         .update(updates)
         .eq('id', id)
         .select()
@@ -104,7 +105,7 @@ export const useExperts = () => {
   const deleteExpert = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('experts')
+        .from('experts' as any)
         .delete()
         .eq('id', id);
 

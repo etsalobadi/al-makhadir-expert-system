@@ -33,10 +33,13 @@ export const useDashboardStats = () => {
 
   const fetchStats = async () => {
     try {
-      // Fetch experts stats
-      const { data: expertsData } = await supabase
-        .from('experts')
-        .select('status');
+      // Fetch experts stats using raw query since types aren't updated yet
+      const { data: expertsData, error: expertsError } = await supabase
+        .rpc('select_from_table', { table_name: 'experts', columns: 'status' })
+        .catch(async () => {
+          // Fallback: try direct query
+          return await supabase.from('experts' as any).select('status');
+        });
 
       // Fetch cases stats
       const { data: casesData } = await supabase
@@ -49,7 +52,7 @@ export const useDashboardStats = () => {
         .select('status');
 
       const totalExperts = expertsData?.length || 0;
-      const activeExperts = expertsData?.filter(e => e.status === 'active').length || 0;
+      const activeExperts = expertsData?.filter((e: any) => e.status === 'active').length || 0;
       
       const totalCases = casesData?.length || 0;
       const activeCases = casesData?.filter(c => c.status === 'in_progress').length || 0;
