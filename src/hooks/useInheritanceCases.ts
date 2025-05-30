@@ -32,7 +32,7 @@ export const useInheritanceCases = () => {
 
       if (error) throw error;
       
-      setCases((data as InheritanceCase[]) || []);
+      setCases((data as unknown as InheritanceCase[]) || []);
     } catch (error) {
       console.error('Error fetching inheritance cases:', error);
       toast({
@@ -49,18 +49,18 @@ export const useInheritanceCases = () => {
     try {
       const { data, error } = await supabase
         .from('inheritance_cases')
-        .insert([caseData])
+        .insert([caseData as any])
         .select()
         .single();
 
       if (error) throw error;
       
-      setCases(prev => [data as InheritanceCase, ...prev]);
+      setCases(prev => [data as unknown as InheritanceCase, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء القضية بنجاح"
       });
-      return data as InheritanceCase;
+      return data as unknown as InheritanceCase;
     } catch (error) {
       console.error('Error creating inheritance case:', error);
       toast({
@@ -76,19 +76,19 @@ export const useInheritanceCases = () => {
     try {
       const { data, error } = await supabase
         .from('inheritance_cases')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
       
-      setCases(prev => prev.map(c => c.id === id ? data as InheritanceCase : c));
+      setCases(prev => prev.map(c => c.id === id ? data as unknown as InheritanceCase : c));
       toast({
         title: "نجح",
         description: "تم تحديث القضية بنجاح"
       });
-      return data as InheritanceCase;
+      return data as unknown as InheritanceCase;
     } catch (error) {
       console.error('Error updating inheritance case:', error);
       toast({
