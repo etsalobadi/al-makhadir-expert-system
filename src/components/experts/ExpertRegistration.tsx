@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -20,24 +18,25 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { isValidArabicName, isValidYemeniId } from '../../utils/arabicUtils';
-import { showSuccess } from '../../utils/helpers';
+import { useExperts } from '../../hooks/useExperts';
 
 const ExpertRegistration: React.FC = () => {
   const [activeTab, setActiveTab] = useState('personal');
+  const [loading, setLoading] = useState(false);
+  const { createExpert } = useExperts();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    nationalId: '',
-    dob: '',
+    national_id: '',
     gender: '',
-    address: '',
     specialty: '',
     qualification: '',
-    graduationYear: '',
+    graduation_year: '',
     university: '',
-    experienceYears: '',
-    previousCases: '',
+    experience_years: '',
+    status: 'active' as const,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -47,7 +46,6 @@ const ExpertRegistration: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -56,7 +54,6 @@ const ExpertRegistration: React.FC = () => {
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user selects
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -65,7 +62,6 @@ const ExpertRegistration: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
-    // Personal Info Validation
     if (!formData.name) {
       newErrors.name = 'يرجى إدخال الاسم';
     } else if (!isValidArabicName(formData.name)) {
@@ -82,28 +78,13 @@ const ExpertRegistration: React.FC = () => {
       newErrors.phone = 'يرجى إدخال رقم الهاتف';
     }
     
-    if (!formData.nationalId) {
-      newErrors.nationalId = 'يرجى إدخال رقم الهوية';
-    } else if (!isValidYemeniId(formData.nationalId)) {
-      newErrors.nationalId = 'رقم الهوية غير صحيح';
+    if (formData.national_id && !isValidYemeniId(formData.national_id)) {
+      newErrors.national_id = 'رقم الهوية غير صحيح';
     }
     
-    if (!formData.gender) {
-      newErrors.gender = 'يرجى اختيار الجنس';
-    }
-    
-    // Professional Info Validation
     if (activeTab === 'professional') {
       if (!formData.specialty) {
         newErrors.specialty = 'يرجى اختيار التخصص';
-      }
-      
-      if (!formData.qualification) {
-        newErrors.qualification = 'يرجى إدخال المؤهل العلمي';
-      }
-      
-      if (!formData.university) {
-        newErrors.university = 'يرجى إدخال اسم الجامعة';
       }
     }
     
@@ -111,30 +92,45 @@ const ExpertRegistration: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      // In a real app, submit the form data to the server
-      console.log('Form data submitted:', formData);
-      showSuccess('تم تسجيل الخبير بنجاح');
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    try {
+      await createExpert({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        national_id: formData.national_id || undefined,
+        specialty: formData.specialty as any,
+        qualification: formData.qualification || undefined,
+        university: formData.university || undefined,
+        graduation_year: formData.graduation_year || undefined,
+        experience_years: formData.experience_years ? parseInt(formData.experience_years) : undefined,
+        status: formData.status,
+      });
       
-      // Reset the form
+      // Reset form
       setFormData({
         name: '',
         email: '',
         phone: '',
-        nationalId: '',
-        dob: '',
+        national_id: '',
         gender: '',
-        address: '',
         specialty: '',
         qualification: '',
-        graduationYear: '',
+        graduation_year: '',
         university: '',
-        experienceYears: '',
-        previousCases: '',
+        experience_years: '',
+        status: 'active',
       });
+      setActiveTab('personal');
+    } catch (error) {
+      // Error handled in hook
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -217,63 +213,18 @@ const ExpertRegistration: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="nationalId">رقم الهوية</Label>
+                  <Label htmlFor="national_id">رقم الهوية</Label>
                   <Input
-                    id="nationalId"
-                    name="nationalId"
-                    value={formData.nationalId}
+                    id="national_id"
+                    name="national_id"
+                    value={formData.national_id}
                     onChange={handleInputChange}
-                    placeholder="أدخل رقم الهوية"
-                    className={errors.nationalId ? 'border-red-500' : ''}
+                    placeholder="أدخل رقم الهوية (اختياري)"
+                    className={errors.national_id ? 'border-red-500' : ''}
                   />
-                  {errors.nationalId && (
-                    <p className="text-red-500 text-sm">{errors.nationalId}</p>
+                  {errors.national_id && (
+                    <p className="text-red-500 text-sm">{errors.national_id}</p>
                   )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="dob">تاريخ الميلاد</Label>
-                  <Input
-                    id="dob"
-                    name="dob"
-                    type="date"
-                    value={formData.dob}
-                    onChange={handleInputChange}
-                    className={errors.dob ? 'border-red-500' : ''}
-                  />
-                  {errors.dob && (
-                    <p className="text-red-500 text-sm">{errors.dob}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="gender">الجنس</Label>
-                  <Select
-                    value={formData.gender}
-                    onValueChange={(value) => handleSelectChange('gender', value)}
-                  >
-                    <SelectTrigger className={errors.gender ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="اختر الجنس" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">ذكر</SelectItem>
-                      <SelectItem value="female">أنثى</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.gender && (
-                    <p className="text-red-500 text-sm">{errors.gender}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="address">العنوان</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="أدخل العنوان"
-                  />
                 </div>
                 
                 <div className="col-span-2 flex justify-end space-x-2 space-x-reverse mt-4">
@@ -317,19 +268,15 @@ const ExpertRegistration: React.FC = () => {
                     value={formData.qualification}
                     onChange={handleInputChange}
                     placeholder="أدخل المؤهل العلمي"
-                    className={errors.qualification ? 'border-red-500' : ''}
                   />
-                  {errors.qualification && (
-                    <p className="text-red-500 text-sm">{errors.qualification}</p>
-                  )}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="graduationYear">سنة التخرج</Label>
+                  <Label htmlFor="graduation_year">سنة التخرج</Label>
                   <Input
-                    id="graduationYear"
-                    name="graduationYear"
-                    value={formData.graduationYear}
+                    id="graduation_year"
+                    name="graduation_year"
+                    value={formData.graduation_year}
                     onChange={handleInputChange}
                     placeholder="أدخل سنة التخرج"
                   />
@@ -343,34 +290,18 @@ const ExpertRegistration: React.FC = () => {
                     value={formData.university}
                     onChange={handleInputChange}
                     placeholder="أدخل اسم الجامعة"
-                    className={errors.university ? 'border-red-500' : ''}
                   />
-                  {errors.university && (
-                    <p className="text-red-500 text-sm">{errors.university}</p>
-                  )}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="experienceYears">سنوات الخبرة</Label>
+                  <Label htmlFor="experience_years">سنوات الخبرة</Label>
                   <Input
-                    id="experienceYears"
-                    name="experienceYears"
+                    id="experience_years"
+                    name="experience_years"
                     type="number"
-                    value={formData.experienceYears}
+                    value={formData.experience_years}
                     onChange={handleInputChange}
                     placeholder="أدخل عدد سنوات الخبرة"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="previousCases">عدد القضايا السابقة</Label>
-                  <Input
-                    id="previousCases"
-                    name="previousCases"
-                    type="number"
-                    value={formData.previousCases}
-                    onChange={handleInputChange}
-                    placeholder="أدخل عدد القضايا السابقة"
                   />
                 </div>
                 
@@ -382,8 +313,12 @@ const ExpertRegistration: React.FC = () => {
                   >
                     السابق
                   </Button>
-                  <Button type="submit" className="bg-judicial-primary">
-                    تسجيل الخبير
+                  <Button 
+                    type="submit" 
+                    disabled={loading}
+                    className="bg-judicial-primary"
+                  >
+                    {loading ? 'جاري التسجيل...' : 'تسجيل الخبير'}
                   </Button>
                 </div>
               </div>

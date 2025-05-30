@@ -25,55 +25,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Eye, MoreHorizontal, Search, Trash, UserCheck, UserX } from 'lucide-react';
 import { EXPERT_STATUS } from '../../utils/constants';
-import { showSuccess } from '../../utils/helpers';
-
-// Mock experts data
-const mockExperts = [
-  {
-    id: '1',
-    name: 'أحمد محمد علي',
-    specialty: 'هندسة',
-    phone: '772123456',
-    email: 'ahmed@example.com',
-    status: EXPERT_STATUS.ACTIVE,
-  },
-  {
-    id: '2',
-    name: 'سارة عبدالله محمد',
-    specialty: 'محاسبة',
-    phone: '771234567',
-    email: 'sara@example.com',
-    status: EXPERT_STATUS.ACTIVE,
-  },
-  {
-    id: '3',
-    name: 'علي يحيى حسين',
-    specialty: 'عقارات',
-    phone: '773456789',
-    email: 'ali@example.com',
-    status: EXPERT_STATUS.PENDING,
-  },
-  {
-    id: '4',
-    name: 'فاطمة سعيد أحمد',
-    specialty: 'طب',
-    phone: '774567890',
-    email: 'fatima@example.com',
-    status: EXPERT_STATUS.SUSPENDED,
-  },
-  {
-    id: '5',
-    name: 'محمد قائد صالح',
-    specialty: 'مواريث',
-    phone: '775678901',
-    email: 'mohammed@example.com',
-    status: EXPERT_STATUS.EXPIRED,
-  },
-];
+import { useExperts } from '../../hooks/useExperts';
 
 const ExpertsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [experts] = useState(mockExperts);
+  const { experts, loading, updateExpert, deleteExpert } = useExperts();
   
   const filteredExperts = experts.filter(expert => 
     expert.name.includes(searchTerm) || 
@@ -81,14 +37,20 @@ const ExpertsList: React.FC = () => {
     expert.specialty.includes(searchTerm)
   );
   
-  const handleStatusChange = (id: string, newStatus: string) => {
-    console.log(`Changing expert ${id} status to ${newStatus}`);
-    showSuccess('تم تغيير حالة الخبير بنجاح');
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      await updateExpert(id, { status: newStatus as any });
+    } catch (error) {
+      console.error('Error updating expert status:', error);
+    }
   };
   
-  const handleDelete = (id: string) => {
-    console.log(`Deleting expert ${id}`);
-    showSuccess('تم حذف الخبير بنجاح');
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteExpert(id);
+    } catch (error) {
+      console.error('Error deleting expert:', error);
+    }
   };
   
   const getStatusBadge = (status: string) => {
@@ -106,6 +68,33 @@ const ExpertsList: React.FC = () => {
     }
   };
 
+  const getSpecialtyLabel = (specialty: string) => {
+    const specialties = {
+      engineering: 'هندسة',
+      accounting: 'محاسبة',
+      medical: 'طب',
+      it: 'تقنية معلومات',
+      real_estate: 'عقارات',
+      inheritance: 'مواريث'
+    };
+    return specialties[specialty as keyof typeof specialties] || specialty;
+  };
+
+  if (loading) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>قائمة الخبراء</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-judicial-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -120,7 +109,6 @@ const ExpertsList: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button className="bg-judicial-primary">إضافة خبير</Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -147,7 +135,7 @@ const ExpertsList: React.FC = () => {
                 filteredExperts.map((expert) => (
                   <TableRow key={expert.id}>
                     <TableCell className="font-medium">{expert.name}</TableCell>
-                    <TableCell>{expert.specialty}</TableCell>
+                    <TableCell>{getSpecialtyLabel(expert.specialty)}</TableCell>
                     <TableCell>{expert.phone}</TableCell>
                     <TableCell>{expert.email}</TableCell>
                     <TableCell>{getStatusBadge(expert.status)}</TableCell>
