@@ -33,7 +33,14 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(data || []);
+      // Type assertion to ensure database data matches our interface
+      const typedExperts = (data || []).map(expert => ({
+        ...expert,
+        specialty: expert.specialty as Expert['specialty'],
+        status: expert.status as Expert['status']
+      }));
+      
+      setExperts(typedExperts);
     } catch (error) {
       console.error('Error fetching experts:', error);
       toast({
@@ -56,12 +63,19 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(prev => [data, ...prev]);
+      // Type assertion for the created expert
+      const typedExpert = {
+        ...data,
+        specialty: data.specialty as Expert['specialty'],
+        status: data.status as Expert['status']
+      };
+      
+      setExperts(prev => [typedExpert, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء الخبير بنجاح"
       });
-      return data;
+      return typedExpert;
     } catch (error) {
       console.error('Error creating expert:', error);
       toast({
@@ -84,12 +98,19 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      setExperts(prev => prev.map(e => e.id === id ? data : e));
+      // Type assertion for the updated expert
+      const typedExpert = {
+        ...data,
+        specialty: data.specialty as Expert['specialty'],
+        status: data.status as Expert['status']
+      };
+      
+      setExperts(prev => prev.map(e => e.id === id ? typedExpert : e));
       toast({
         title: "نجح",
         description: "تم تحديث الخبير بنجاح"
       });
-      return data;
+      return typedExpert;
     } catch (error) {
       console.error('Error updating expert:', error);
       toast({
