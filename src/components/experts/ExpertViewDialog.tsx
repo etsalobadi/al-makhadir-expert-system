@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, Phone, Mail, Calendar, GraduationCap } from 'lucide-react';
-import { Expert } from '@/hooks/useExperts';
+import { Expert } from '@/types/database';
 import { formatDate } from '@/utils/helpers';
 import ExpertAttachments from './ExpertAttachments';
 

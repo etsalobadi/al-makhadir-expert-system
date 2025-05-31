@@ -63,8 +63,8 @@ export function isPriorityLevel(value: string): value is PriorityLevel {
   return Object.values(PRIORITY_LEVELS).includes(value as PriorityLevel);
 }
 
-// Validation function that throws if type is invalid
-export function validateAndCast<T>(
+// Validation function that throws if type is invalid - Fixed generic constraint
+export function validateAndCast<T extends string>(
   value: string,
   validator: (val: string) => val is T,
   fieldName: string
