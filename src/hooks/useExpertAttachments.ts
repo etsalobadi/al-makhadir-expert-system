@@ -2,19 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-
-export interface ExpertAttachment {
-  id: string;
-  expert_id: string;
-  file_name: string;
-  file_path: string;
-  file_type: string;
-  file_size?: number;
-  attachment_type: 'certificate' | 'id_document' | 'cv' | 'license' | 'other';
-  description?: string;
-  created_at: string;
-  updated_at: string;
-}
+import { ExpertAttachment } from '@/types/database';
+import { transformExpertAttachmentsFromDB, transformExpertAttachmentFromDB } from '@/utils/databaseTransforms';
 
 export const useExpertAttachments = (expertId?: string) => {
   const [attachments, setAttachments] = useState<ExpertAttachment[]>([]);
@@ -32,12 +21,7 @@ export const useExpertAttachments = (expertId?: string) => {
 
       if (error) throw error;
       
-      // Type assertion to ensure database data matches our interface
-      const typedAttachments = (data || []).map(attachment => ({
-        ...attachment,
-        attachment_type: attachment.attachment_type as ExpertAttachment['attachment_type']
-      }));
-      
+      const typedAttachments = transformExpertAttachmentsFromDB(data || []);
       setAttachments(typedAttachments);
     } catch (error) {
       console.error('Error fetching expert attachments:', error);
@@ -61,12 +45,7 @@ export const useExpertAttachments = (expertId?: string) => {
 
       if (error) throw error;
       
-      // Type assertion for the created attachment
-      const typedAttachment = {
-        ...data,
-        attachment_type: data.attachment_type as ExpertAttachment['attachment_type']
-      };
-      
+      const typedAttachment = transformExpertAttachmentFromDB(data);
       setAttachments(prev => [typedAttachment, ...prev]);
       toast({
         title: "نجح",
@@ -129,3 +108,5 @@ export const useExpertAttachments = (expertId?: string) => {
     refetch: fetchAttachments
   };
 };
+
+export type { ExpertAttachment };

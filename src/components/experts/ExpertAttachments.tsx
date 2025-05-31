@@ -7,11 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileText, Download, Trash2, Plus } from 'lucide-react';
+import { Plus, Download, Trash2 } from 'lucide-react';
 import { useExpertAttachments, type ExpertAttachment } from '@/hooks/useExpertAttachments';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDate } from '@/utils/helpers';
+import { ATTACHMENT_TYPES, type AttachmentType } from '@/types/database';
 
 interface ExpertAttachmentsProps {
   expertId: string;
@@ -20,21 +21,21 @@ interface ExpertAttachmentsProps {
 const ExpertAttachments: React.FC<ExpertAttachmentsProps> = ({ expertId }) => {
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [attachmentType, setAttachmentType] = useState<ExpertAttachment['attachment_type']>('certificate');
+  const [attachmentType, setAttachmentType] = useState<AttachmentType>(ATTACHMENT_TYPES.CERTIFICATE);
   const [description, setDescription] = useState('');
   
   const { attachments, loading, addAttachment, deleteAttachment } = useExpertAttachments(expertId);
   const { uploadFile, uploading } = useFileUpload();
 
-  const getAttachmentTypeLabel = (type: string) => {
+  const getAttachmentTypeLabel = (type: AttachmentType) => {
     const labels = {
-      certificate: 'شهادة',
-      id_document: 'هوية',
-      cv: 'سيرة ذاتية',
-      license: 'ترخيص',
-      other: 'أخرى'
+      [ATTACHMENT_TYPES.CERTIFICATE]: 'شهادة',
+      [ATTACHMENT_TYPES.ID_DOCUMENT]: 'هوية',
+      [ATTACHMENT_TYPES.CV]: 'سيرة ذاتية',
+      [ATTACHMENT_TYPES.LICENSE]: 'ترخيص',
+      [ATTACHMENT_TYPES.OTHER]: 'أخرى'
     };
-    return labels[type as keyof typeof labels] || type;
+    return labels[type];
   };
 
   const getFileIcon = (fileType: string) => {
@@ -76,7 +77,7 @@ const ExpertAttachments: React.FC<ExpertAttachmentsProps> = ({ expertId }) => {
       // Reset form
       setSelectedFile(null);
       setDescription('');
-      setAttachmentType('certificate');
+      setAttachmentType(ATTACHMENT_TYPES.CERTIFICATE);
       setOpen(false);
     } catch (error) {
       console.error('Upload error:', error);
@@ -137,16 +138,16 @@ const ExpertAttachments: React.FC<ExpertAttachmentsProps> = ({ expertId }) => {
               
               <div>
                 <Label htmlFor="type">نوع المرفق</Label>
-                <Select value={attachmentType} onValueChange={(value: ExpertAttachment['attachment_type']) => setAttachmentType(value)}>
+                <Select value={attachmentType} onValueChange={(value: AttachmentType) => setAttachmentType(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="certificate">شهادة</SelectItem>
-                    <SelectItem value="id_document">هوية</SelectItem>
-                    <SelectItem value="cv">سيرة ذاتية</SelectItem>
-                    <SelectItem value="license">ترخيص</SelectItem>
-                    <SelectItem value="other">أخرى</SelectItem>
+                    <SelectItem value={ATTACHMENT_TYPES.CERTIFICATE}>شهادة</SelectItem>
+                    <SelectItem value={ATTACHMENT_TYPES.ID_DOCUMENT}>هوية</SelectItem>
+                    <SelectItem value={ATTACHMENT_TYPES.CV}>سيرة ذاتية</SelectItem>
+                    <SelectItem value={ATTACHMENT_TYPES.LICENSE}>ترخيص</SelectItem>
+                    <SelectItem value={ATTACHMENT_TYPES.OTHER}>أخرى</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

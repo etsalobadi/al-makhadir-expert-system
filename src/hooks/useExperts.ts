@@ -2,23 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-
-export interface Expert {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  national_id?: string;
-  specialty: 'engineering' | 'accounting' | 'medical' | 'it' | 'real_estate' | 'inheritance';
-  qualification?: string;
-  university?: string;
-  graduation_year?: string;
-  experience_years?: number;
-  status: 'active' | 'pending' | 'suspended' | 'expired';
-  previous_cases: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Expert } from '@/types/database';
+import { transformExpertsFromDB, transformExpertFromDB } from '@/utils/databaseTransforms';
 
 export const useExperts = () => {
   const [experts, setExperts] = useState<Expert[]>([]);
@@ -33,13 +18,7 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      // Type assertion to ensure database data matches our interface
-      const typedExperts = (data || []).map(expert => ({
-        ...expert,
-        specialty: expert.specialty as Expert['specialty'],
-        status: expert.status as Expert['status']
-      }));
-      
+      const typedExperts = transformExpertsFromDB(data || []);
       setExperts(typedExperts);
     } catch (error) {
       console.error('Error fetching experts:', error);
@@ -63,13 +42,7 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      // Type assertion for the created expert
-      const typedExpert = {
-        ...data,
-        specialty: data.specialty as Expert['specialty'],
-        status: data.status as Expert['status']
-      };
-      
+      const typedExpert = transformExpertFromDB(data);
       setExperts(prev => [typedExpert, ...prev]);
       toast({
         title: "نجح",
@@ -98,13 +71,7 @@ export const useExperts = () => {
 
       if (error) throw error;
       
-      // Type assertion for the updated expert
-      const typedExpert = {
-        ...data,
-        specialty: data.specialty as Expert['specialty'],
-        status: data.status as Expert['status']
-      };
-      
+      const typedExpert = transformExpertFromDB(data);
       setExperts(prev => prev.map(e => e.id === id ? typedExpert : e));
       toast({
         title: "نجح",

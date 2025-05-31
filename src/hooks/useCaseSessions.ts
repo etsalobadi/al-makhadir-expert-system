@@ -2,18 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-
-export interface CaseSession {
-  id: string;
-  case_id: string;
-  session_date: string;
-  session_type: 'hearing' | 'review' | 'decision' | 'consultation';
-  status: 'scheduled' | 'completed' | 'postponed' | 'cancelled';
-  location?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
+import { CaseSession } from '@/types/database';
+import { transformCaseSessionsFromDB, transformCaseSessionFromDB } from '@/utils/databaseTransforms';
 
 export const useCaseSessions = (caseId?: string) => {
   const [sessions, setSessions] = useState<CaseSession[]>([]);
@@ -31,13 +21,7 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      // Type assertion to ensure database data matches our interface
-      const typedSessions = (data || []).map(session => ({
-        ...session,
-        session_type: session.session_type as CaseSession['session_type'],
-        status: session.status as CaseSession['status']
-      }));
-      
+      const typedSessions = transformCaseSessionsFromDB(data || []);
       setSessions(typedSessions);
     } catch (error) {
       console.error('Error fetching case sessions:', error);
@@ -61,13 +45,7 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      // Type assertion for the created session
-      const typedSession = {
-        ...data,
-        session_type: data.session_type as CaseSession['session_type'],
-        status: data.status as CaseSession['status']
-      };
-      
+      const typedSession = transformCaseSessionFromDB(data);
       setSessions(prev => [typedSession, ...prev]);
       toast({
         title: "نجح",
@@ -96,13 +74,7 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      // Type assertion for the updated session
-      const typedSession = {
-        ...data,
-        session_type: data.session_type as CaseSession['session_type'],
-        status: data.status as CaseSession['status']
-      };
-      
+      const typedSession = transformCaseSessionFromDB(data);
       setSessions(prev => prev.map(s => s.id === id ? typedSession : s));
       toast({
         title: "نجح",
@@ -132,3 +104,5 @@ export const useCaseSessions = (caseId?: string) => {
     refetch: fetchSessions
   };
 };
+
+export type { CaseSession };
