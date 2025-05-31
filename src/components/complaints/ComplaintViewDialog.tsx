@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Eye } from 'lucide-react';
 import { useComplaints, type Complaint } from '@/hooks/useComplaints';
 import { formatDate } from '@/utils/helpers';
+import { Download, FileText } from 'lucide-react';
 
 interface ComplaintViewDialogProps {
   complaint: Complaint;
@@ -53,6 +53,17 @@ const ComplaintViewDialog: React.FC<ComplaintViewDialogProps> = ({ complaint }) 
       other: 'أخرى'
     };
     return typeLabels[type as keyof typeof typeLabels];
+  };
+
+  const downloadAttachment = (attachment: any) => {
+    window.open(attachment.url, '_blank');
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes('pdf')) return '📄';
+    if (fileType.includes('image')) return '🖼️';
+    if (fileType.includes('word') || fileType.includes('document')) return '📝';
+    return '📎';
   };
 
   const handleUpdate = async () => {
@@ -134,6 +145,35 @@ const ComplaintViewDialog: React.FC<ComplaintViewDialogProps> = ({ complaint }) 
               {complaint.description}
             </p>
           </div>
+
+          {/* Attachments Section */}
+          {complaint.attachments && complaint.attachments.length > 0 && (
+            <div>
+              <Label className="text-sm font-medium text-gray-600">المرفقات</Label>
+              <div className="mt-2 space-y-2">
+                {complaint.attachments.map((attachment: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{getFileIcon(attachment.type)}</span>
+                      <div>
+                        <p className="font-medium">{attachment.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {attachment.size && `${Math.round(attachment.size / 1024)} كيلوبايت`}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadAttachment(attachment)}
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div>
             <Label className="text-sm font-medium text-gray-600">المعين للمعالجة</Label>

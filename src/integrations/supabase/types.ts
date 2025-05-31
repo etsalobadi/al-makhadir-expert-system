@@ -172,6 +172,50 @@ export type Database = {
         }
         Relationships: []
       }
+      case_sessions: {
+        Row: {
+          case_id: string
+          created_at: string
+          id: string
+          location: string | null
+          notes: string | null
+          session_date: string
+          session_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          session_date: string
+          session_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          session_date?: string
+          session_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_sessions_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       complaints: {
         Row: {
           assigned_to: string | null
@@ -414,6 +458,53 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "inheritance_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_attachments: {
+        Row: {
+          attachment_type: string
+          created_at: string
+          description: string | null
+          expert_id: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_type: string
+          created_at?: string
+          description?: string | null
+          expert_id: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_type?: string
+          created_at?: string
+          description?: string | null
+          expert_id?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_attachments_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "experts"
             referencedColumns: ["id"]
           },
         ]
