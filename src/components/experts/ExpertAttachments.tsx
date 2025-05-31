@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, Download, Trash2, Plus } from 'lucide-react';
 import { useExpertAttachments, type ExpertAttachment } from '@/hooks/useExpertAttachments';
 import { useFileUpload } from '@/hooks/useFileUpload';
+import { supabase } from '@/integrations/supabase/client';
 import { formatDate } from '@/utils/helpers';
 
 interface ExpertAttachmentsProps {

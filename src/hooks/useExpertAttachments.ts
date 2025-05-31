@@ -31,7 +31,14 @@ export const useExpertAttachments = (expertId?: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAttachments(data || []);
+      
+      // Type assertion to ensure database data matches our interface
+      const typedAttachments = (data || []).map(attachment => ({
+        ...attachment,
+        attachment_type: attachment.attachment_type as ExpertAttachment['attachment_type']
+      }));
+      
+      setAttachments(typedAttachments);
     } catch (error) {
       console.error('Error fetching expert attachments:', error);
       toast({
@@ -54,12 +61,18 @@ export const useExpertAttachments = (expertId?: string) => {
 
       if (error) throw error;
       
-      setAttachments(prev => [data, ...prev]);
+      // Type assertion for the created attachment
+      const typedAttachment = {
+        ...data,
+        attachment_type: data.attachment_type as ExpertAttachment['attachment_type']
+      };
+      
+      setAttachments(prev => [typedAttachment, ...prev]);
       toast({
         title: "نجح",
         description: "تم إضافة المرفق بنجاح"
       });
-      return data;
+      return typedAttachment;
     } catch (error) {
       console.error('Error adding attachment:', error);
       toast({

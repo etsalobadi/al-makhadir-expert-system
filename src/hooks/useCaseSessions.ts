@@ -30,7 +30,15 @@ export const useCaseSessions = (caseId?: string) => {
         .order('session_date', { ascending: false });
 
       if (error) throw error;
-      setSessions(data || []);
+      
+      // Type assertion to ensure database data matches our interface
+      const typedSessions = (data || []).map(session => ({
+        ...session,
+        session_type: session.session_type as CaseSession['session_type'],
+        status: session.status as CaseSession['status']
+      }));
+      
+      setSessions(typedSessions);
     } catch (error) {
       console.error('Error fetching case sessions:', error);
       toast({
@@ -53,12 +61,19 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      setSessions(prev => [data, ...prev]);
+      // Type assertion for the created session
+      const typedSession = {
+        ...data,
+        session_type: data.session_type as CaseSession['session_type'],
+        status: data.status as CaseSession['status']
+      };
+      
+      setSessions(prev => [typedSession, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء الجلسة بنجاح"
       });
-      return data;
+      return typedSession;
     } catch (error) {
       console.error('Error creating session:', error);
       toast({
@@ -81,12 +96,19 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      setSessions(prev => prev.map(s => s.id === id ? data : s));
+      // Type assertion for the updated session
+      const typedSession = {
+        ...data,
+        session_type: data.session_type as CaseSession['session_type'],
+        status: data.status as CaseSession['status']
+      };
+      
+      setSessions(prev => prev.map(s => s.id === id ? typedSession : s));
       toast({
         title: "نجح",
         description: "تم تحديث الجلسة بنجاح"
       });
-      return data;
+      return typedSession;
     } catch (error) {
       console.error('Error updating session:', error);
       toast({
