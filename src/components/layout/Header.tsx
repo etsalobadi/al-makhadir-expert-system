@@ -14,7 +14,21 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, User, Settings, Bell } from 'lucide-react';
 
 const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, userRoles } = useAuth();
+
+  const getUserDisplayName = () => {
+    return user?.email?.split('@')[0] || 'المستخدم';
+  };
+
+  const getRoleDisplayName = (roles: string[]) => {
+    if (roles.includes('admin')) return 'مدير النظام';
+    if (roles.includes('staff')) return 'موظف';
+    if (roles.includes('judge')) return 'قاضي';
+    if (roles.includes('expert')) return 'خبير';
+    if (roles.includes('notary')) return 'موثق';
+    if (roles.includes('inheritance_officer')) return 'مسؤول مواريث';
+    return 'مستخدم';
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 py-2 px-4 flex items-center justify-between w-full">
@@ -35,23 +49,15 @@ const Header: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 pl-0">
                 <div className="text-right ml-2">
-                  <p className="text-sm font-medium">{user.name}</p>
+                  <p className="text-sm font-medium">{getUserDisplayName()}</p>
                   <p className="text-xs text-muted-foreground">
-                    {user.role === 'admin' && 'مدير النظام'}
-                    {user.role === 'staff' && 'موظف'}
-                    {user.role === 'judge' && 'قاضي'}
-                    {user.role === 'expert' && 'خبير'}
-                    {user.role === 'notary' && 'موثق'}
-                    {user.role === 'inheritance_officer' && 'مسؤول مواريث'}
+                    {getRoleDisplayName(userRoles)}
                   </p>
                 </div>
                 <Avatar>
-                  <AvatarImage src="" alt={user.name} />
+                  <AvatarImage src="" alt={getUserDisplayName()} />
                   <AvatarFallback className="bg-judicial-primary text-white">
-                    {user.name
-                      .split(' ')
-                      .map(name => name[0])
-                      .join('')}
+                    {getUserDisplayName().charAt(0)}
                   </AvatarFallback>
                 </Avatar>
               </Button>

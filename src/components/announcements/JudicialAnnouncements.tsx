@@ -1,443 +1,332 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useAuthContext } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Calendar as CalendarIcon, 
-  FileText, 
-  Bell,
-  Eye,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle
-} from 'lucide-react';
-import { formatDate } from '@/utils/helpers';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { CalendarIcon, Download, Filter, Search, Eye, AlertCircle } from 'lucide-react';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { DateRange } from 'react-day-picker';
 
 interface Announcement {
   id: string;
-  case_number: string;
-  court_number: string;
-  announcer_name: string;
-  session_date: string;
-  announcement_type: string;
-  status: string;
-  last_update: string;
-  description?: string;
-  created_at: string;
+  caseNumber: string;
+  court: string;
+  announcer: string;
+  sessionDate: Date;
+  announcementType: string;
+  status: 'active' | 'expired' | 'updated';
+  lastUpdate: Date;
+  description: string;
 }
 
 const JudicialAnnouncements: React.FC = () => {
-  const { user, hasAnyRole } = useAuthContext();
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedCourt, setSelectedCourt] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
-
-  useEffect(() => {
-    fetchAnnouncements();
-  }, [user]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [announcements, searchTerm, selectedType, selectedStatus, selectedCourt, dateRange]);
-
-  const fetchAnnouncements = async () => {
-    try {
-      // For now, we'll create mock announcements since we don't have the table yet
-      // In a real implementation, this would fetch from a dedicated announcements table
-      const mockAnnouncements: Announcement[] = [
-        {
-          id: '1',
-          case_number: 'CFICICIVS2025/0002421',
-          court_number: 'محكمة الشارقة الابتدائية - مدني',
-          announcer_name: 'البحر الأسود لمقاولات الذكية والتجارة المسلحة',
-          session_date: '2025-05-27T10:05:00',
-          announcement_type: 'hearing',
-          status: 'active',
-          last_update: '2025-06-01T12:06:00',
-          description: 'إعلان جلسة استماع',
-          created_at: '2025-06-01T12:06:00'
-        },
-        {
-          id: '2',
-          case_number: 'CFICICIVS2025/0003185',
-          court_number: 'محكمة الشارقة الابتدائية - مدني',
-          announcer_name: 'داود بن سليمان بن طالب التنوي',
-          session_date: '2025-05-28T15:15:00',
-          announcement_type: 'decision',
-          status: 'active',
-          last_update: '2025-06-01T12:06:00',
-          description: 'إعلان قرار',
-          created_at: '2025-06-01T12:06:00'
-        },
-        {
-          id: '3',
-          case_number: 'KHCFISHPAF2025/0000053',
-          court_number: 'محكمة خورفكان الابتدائية',
-          announcer_name: 'رايا عبد التواب محمد سيف النبر',
-          session_date: '2025-05-21T08:55:00',
-          announcement_type: 'consultation',
-          status: 'completed',
-          last_update: '2025-06-01T10:06:00',
-          description: 'طلب استشارة',
-          created_at: '2025-06-01T10:06:00'
-        }
-      ];
-
-      setAnnouncements(mockAnnouncements);
-    } catch (error) {
-      console.error('Error fetching announcements:', error);
-    } finally {
-      setLoading(false);
+  const [announcements] = useState<Announcement[]>([
+    {
+      id: '1',
+      caseNumber: 'قضية-2024-001',
+      court: 'المحكمة الابتدائية بالمخادر',
+      announcer: 'القاضي أحمد السعيد',
+      sessionDate: new Date('2024-01-15'),
+      announcementType: 'استدعاء خبير',
+      status: 'active',
+      lastUpdate: new Date('2024-01-10'),
+      description: 'استدعاء خبير هندسي لفحص العقار'
+    },
+    {
+      id: '2',
+      caseNumber: 'قضية-2024-002',
+      court: 'المحكمة الابتدائية بالمخادر',
+      announcer: 'القاضي فاطمة الزهراء',
+      sessionDate: new Date('2024-01-20'),
+      announcementType: 'إعلان جلسة',
+      status: 'active',
+      lastUpdate: new Date('2024-01-12'),
+      description: 'إعلان جلسة محاكمة'
     }
-  };
+  ]);
 
-  const applyFilters = () => {
-    let filtered = [...announcements];
+  const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>(announcements);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [courtFilter, setCourtFilter] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-    // Search filter
+  const announcementTypes = [
+    'استدعاء خبير',
+    'إعلان جلسة',
+    'تأجيل جلسة',
+    'إنذار',
+    'تبليغ حكم'
+  ];
+
+  const courts = [
+    'المحكمة الابتدائية بالمخادر',
+    'محكمة الاستئناف',
+    'المحكمة العليا'
+  ];
+
+  React.useEffect(() => {
+    let filtered = announcements;
+
     if (searchTerm) {
-      filtered = filtered.filter(ann => 
-        ann.case_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ann.announcer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ann.court_number.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(announcement =>
+        announcement.caseNumber.includes(searchTerm) ||
+        announcement.announcer.includes(searchTerm) ||
+        announcement.description.includes(searchTerm)
       );
     }
 
-    // Type filter
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(ann => ann.announcement_type === selectedType);
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(announcement => announcement.announcementType === typeFilter);
     }
 
-    // Status filter
-    if (selectedStatus !== 'all') {
-      filtered = filtered.filter(ann => ann.status === selectedStatus);
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(announcement => announcement.status === statusFilter);
     }
 
-    // Court filter
-    if (selectedCourt !== 'all') {
-      filtered = filtered.filter(ann => ann.court_number.includes(selectedCourt));
+    if (courtFilter !== 'all') {
+      filtered = filtered.filter(announcement => announcement.court === courtFilter);
     }
 
-    // Date range filter
-    if (dateRange.from || dateRange.to) {
-      filtered = filtered.filter(ann => {
-        const annDate = new Date(ann.session_date);
-        const fromDate = dateRange.from ? new Date(dateRange.from) : new Date('1900-01-01');
-        const toDate = dateRange.to ? new Date(dateRange.to) : new Date('2100-12-31');
-        return annDate >= fromDate && annDate <= toDate;
-      });
+    if (dateRange?.from && dateRange?.to) {
+      filtered = filtered.filter(announcement => 
+        announcement.sessionDate >= dateRange.from! && 
+        announcement.sessionDate <= dateRange.to!
+      );
     }
 
     setFilteredAnnouncements(filtered);
-  };
-
-  const getAnnouncementTypeLabel = (type: string) => {
-    const types = {
-      hearing: 'جلسة استماع',
-      decision: 'قرار',
-      consultation: 'استشارة',
-      notification: 'إشعار'
-    };
-    return types[type as keyof typeof types] || type;
-  };
+  }, [searchTerm, typeFilter, statusFilter, courtFilter, dateRange, announcements]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return (
-          <Badge className="bg-green-500">
-            <CheckCircle className="h-3 w-3 ml-1" />
-            نشط
-          </Badge>
-        );
+        return <Badge className="bg-green-100 text-green-800">نشط</Badge>;
       case 'expired':
-        return (
-          <Badge className="bg-red-500">
-            <XCircle className="h-3 w-3 ml-1" />
-            منتهي
-          </Badge>
-        );
-      case 'completed':
-        return (
-          <Badge className="bg-blue-500">
-            <Clock className="h-3 w-3 ml-1" />
-            مكتمل
-          </Badge>
-        );
+        return <Badge className="bg-red-100 text-red-800">منتهي الصلاحية</Badge>;
       case 'updated':
-        return (
-          <Badge className="bg-yellow-500">
-            <AlertCircle className="h-3 w-3 ml-1" />
-            محدث
-          </Badge>
-        );
+        return <Badge className="bg-blue-100 text-blue-800">محدث</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge>غير محدد</Badge>;
     }
   };
 
-  const downloadAsPDF = (announcement: Announcement) => {
-    // Implement PDF download functionality
-    console.log('Downloading PDF for announcement:', announcement.id);
+  const handleDownloadPDF = (announcementId: string) => {
+    console.log('تنزيل PDF للإعلان:', announcementId);
+    // TODO: Implement PDF download functionality
   };
 
-  const activeAnnouncements = filteredAnnouncements.filter(a => a.status === 'active');
-  const completedAnnouncements = filteredAnnouncements.filter(a => a.status === 'completed');
-  const expiredAnnouncements = filteredAnnouncements.filter(a => a.status === 'expired');
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-judicial-primary"></div>
-      </div>
-    );
-  }
+  const handleViewDetails = (announcementId: string) => {
+    console.log('عرض تفاصيل الإعلان:', announcementId);
+    // TODO: Implement view details functionality
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-judicial-primary to-amber-600 text-white">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-6 w-6" />
-            الإعلانات القضائية
-          </CardTitle>
-          <p className="text-amber-100">
-            نظام إدارة الإعلانات والجلسات القضائية
-          </p>
-        </CardHeader>
-      </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">الإعلانات القضائية</h1>
+          <p className="text-gray-600 mt-2">إدارة ومتابعة الإعلانات القضائية</p>
+        </div>
+        <div className="flex gap-2">
+          <Button>
+            <Download className="w-4 h-4 ml-2" />
+            تصدير البيانات
+          </Button>
+        </div>
+      </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            البحث والتصفية
+            <Filter className="w-5 h-5" />
+            فلاتر البحث
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">البحث</label>
-              <div className="relative">
-                <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="رقم القضية، المُعلن، المحكمة..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pr-8"
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="البحث في الإعلانات..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pr-10"
+              />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">نوع الإعلان</label>
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="جميع الأنواع" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">جميع الأنواع</SelectItem>
-                  <SelectItem value="hearing">جلسة استماع</SelectItem>
-                  <SelectItem value="decision">قرار</SelectItem>
-                  <SelectItem value="consultation">استشارة</SelectItem>
-                  <SelectItem value="notification">إشعار</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Type Filter */}
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="نوع الإعلان" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع الأنواع</SelectItem>
+                {announcementTypes.map(type => (
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">الحالة</label>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="جميع الحالات" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">جميع الحالات</SelectItem>
-                  <SelectItem value="active">نشط</SelectItem>
-                  <SelectItem value="completed">مكتمل</SelectItem>
-                  <SelectItem value="expired">منتهي</SelectItem>
-                  <SelectItem value="updated">محدث</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Status Filter */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="حالة الإعلان" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع الحالات</SelectItem>
+                <SelectItem value="active">نشط</SelectItem>
+                <SelectItem value="expired">منتهي الصلاحية</SelectItem>
+                <SelectItem value="updated">محدث</SelectItem>
+              </SelectContent>
+            </Select>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">فترة زمنية</label>
+            {/* Court Filter */}
+            <Select value={courtFilter} onValueChange={setCourtFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="المحكمة" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع المحاكم</SelectItem>
+                {courts.map(court => (
+                  <SelectItem key={court} value={court}>{court}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Date Range */}
+            <div className="col-span-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="h-4 w-4 ml-2" />
-                    تحديد التاريخ
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-right font-normal",
+                      !dateRange && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="ml-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "PPP", { locale: ar })} -{" "}
+                          {format(dateRange.to, "PPP", { locale: ar })}
+                        </>
+                      ) : (
+                        format(dateRange.from, "PPP", { locale: ar })
+                      )
+                    ) : (
+                      <span>اختر نطاق التاريخ</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
+                    initialFocus
                     mode="range"
+                    defaultMonth={dateRange?.from}
                     selected={dateRange}
-                    onSelect={(range) => setDateRange(range || {})}
+                    onSelect={setDateRange}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
               </Popover>
             </div>
           </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-gray-600">
-              عرض {filteredAnnouncements.length} من أصل {announcements.length} إعلان
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedType('all');
-                setSelectedStatus('all');
-                setSelectedCourt('all');
-                setDateRange({});
-              }}
-            >
-              مسح الفلاتر
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
-      {/* Announcements Tabs */}
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="active">النشطة ({activeAnnouncements.length})</TabsTrigger>
-          <TabsTrigger value="completed">المكتملة ({completedAnnouncements.length})</TabsTrigger>
-          <TabsTrigger value="expired">المنتهية ({expiredAnnouncements.length})</TabsTrigger>
-        </TabsList>
+      {/* Results */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>نتائج البحث ({filteredAnnouncements.length})</CardTitle>
+            <Button variant="outline" onClick={() => {
+              setSearchTerm('');
+              setTypeFilter('all');
+              setStatusFilter('all');
+              setCourtFilter('all');
+              setDateRange(undefined);
+            }}>
+              إعادة تعيين الفلاتر
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-right">رقم القضية</TableHead>
+                  <TableHead className="text-right">المحكمة</TableHead>
+                  <TableHead className="text-right">المُعلن</TableHead>
+                  <TableHead className="text-right">تاريخ الجلسة</TableHead>
+                  <TableHead className="text-right">نوع الإعلان</TableHead>
+                  <TableHead className="text-right">الحالة</TableHead>
+                  <TableHead className="text-right">آخر تحديث</TableHead>
+                  <TableHead className="text-right">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAnnouncements.map((announcement) => (
+                  <TableRow key={announcement.id}>
+                    <TableCell className="font-medium">
+                      {announcement.caseNumber}
+                    </TableCell>
+                    <TableCell>{announcement.court}</TableCell>
+                    <TableCell>{announcement.announcer}</TableCell>
+                    <TableCell>
+                      {format(announcement.sessionDate, 'dd/MM/yyyy', { locale: ar })}
+                    </TableCell>
+                    <TableCell>{announcement.announcementType}</TableCell>
+                    <TableCell>{getStatusBadge(announcement.status)}</TableCell>
+                    <TableCell>
+                      {format(announcement.lastUpdate, 'dd/MM/yyyy', { locale: ar })}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDetails(announcement.id)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDownloadPDF(announcement.id)}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-        <TabsContent value="active" className="space-y-4">
-          {activeAnnouncements.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-8">
-                <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">لا توجد إعلانات نشطة</p>
-              </CardContent>
-            </Card>
-          ) : (
-            activeAnnouncements.map((announcement) => (
-              <Card key={announcement.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">
-                          {announcement.case_number}
-                        </h3>
-                        {getStatusBadge(announcement.status)}
-                        <Badge variant="outline">
-                          {getAnnouncementTypeLabel(announcement.announcement_type)}
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-gray-600 mb-2">
-                        المُعلن: {announcement.announcer_name}
-                      </p>
-                      
-                      <p className="text-gray-600 mb-3">
-                        المحكمة: {announcement.court_number}
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="h-4 w-4 text-gray-400" />
-                          <span>تاريخ الجلسة: {formatDate(new Date(announcement.session_date))}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <span>آخر تحديث: {formatDate(new Date(announcement.last_update))}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-gray-400" />
-                          <span>{announcement.description}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => downloadAsPDF(announcement)}>
-                        <Download className="h-4 w-4 ml-1" />
-                        PDF
-                      </Button>
-                      <Button size="sm">
-                        <Eye className="h-4 w-4 ml-1" />
-                        عرض
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+          {filteredAnnouncements.length === 0 && (
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد إعلانات</h3>
+              <p className="text-gray-600">لم يتم العثور على إعلانات تطابق معايير البحث المحددة.</p>
+            </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-4">
-          {completedAnnouncements.map((announcement) => (
-            <Card key={announcement.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold">
-                        {announcement.case_number}
-                      </h3>
-                      {getStatusBadge(announcement.status)}
-                    </div>
-                    <p className="text-gray-600">{announcement.announcer_name}</p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsPDF(announcement)}>
-                    <Download className="h-4 w-4 ml-1" />
-                    تحميل
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="expired" className="space-y-4">
-          {expiredAnnouncements.map((announcement) => (
-            <Card key={announcement.id} className="opacity-75">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold">
-                        {announcement.case_number}
-                      </h3>
-                      {getStatusBadge(announcement.status)}
-                    </div>
-                    <p className="text-gray-600">{announcement.announcer_name}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
