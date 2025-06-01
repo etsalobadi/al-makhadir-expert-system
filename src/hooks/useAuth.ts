@@ -96,12 +96,19 @@ export const useAuth = () => {
   const login = async (email: string, password: string, userType?: 'internal' | 'external') => {
     try {
       setIsLoading(true);
+      console.log('Login attempt:', { email, userType });
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase auth error:', error);
+        throw error;
+      }
+
+      console.log('Login successful:', data);
 
       // Store user type in session metadata if provided
       if (userType && data.user) {
@@ -115,6 +122,7 @@ export const useAuth = () => {
         description: "مرحباً بك في نظام مركز خبراء القضاء"
       });
     } catch (error: any) {
+      console.error('Login error details:', error);
       toast({
         title: "خطأ في تسجيل الدخول",
         description: error.message,

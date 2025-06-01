@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
@@ -31,6 +30,16 @@ const Login: React.FC = () => {
       </div>
       
       <EnhancedLoginForm />
+      
+      {/* Development Helper Link */}
+      <div className="mt-6 text-center">
+        <a 
+          href="/create-users" 
+          className="text-sm text-judicial-primary hover:underline"
+        >
+          إنشاء مستخدمين تجريبيين للتطوير
+        </a>
+      </div>
       
       <div className="mt-8 text-center text-sm text-gray-500">
         <p>© {new Date().getFullYear()} | جميع الحقوق محفوظة</p>

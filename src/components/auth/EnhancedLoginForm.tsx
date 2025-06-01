@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -33,10 +32,25 @@ const EnhancedLoginForm: React.FC = () => {
       return;
     }
 
+    console.log('Attempting login with:', { email, userType });
+
     try {
       await login(email, password, userType);
     } catch (err: any) {
-      setError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
+      console.error('Login error:', err);
+      let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
+      
+      if (err.message.includes('Invalid login credentials')) {
+        errorMessage = 'بيانات تسجيل الدخول غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور';
+      } else if (err.message.includes('Email not confirmed')) {
+        errorMessage = 'يرجى تأكيد البريد الإلكتروني أولاً';
+      } else if (err.message.includes('Too many requests')) {
+        errorMessage = 'محاولات كثيرة. يرجى المحاولة لاحقاً';
+      } else {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -103,12 +117,22 @@ const EnhancedLoginForm: React.FC = () => {
 
           <TabsContent value="email" className="space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
                 {error}
               </div>
             )}
 
-            {/* User Type Selection */}
+            {/* Credentials Helper */}
+            <div className="bg-blue-50 p-3 rounded-md text-sm border border-blue-200">
+              <p className="font-medium text-blue-800 mb-2">بيانات تسجيل الدخول التجريبية:</p>
+              <div className="space-y-1 text-blue-700">
+                <p><strong>مدير:</strong> admin@judiciary.ye / Admin123!@#</p>
+                <p><strong>موظف:</strong> staff@judiciary.ye / Staff123!@#</p>
+                <p><strong>قاضي:</strong> judge@judiciary.ye / Judge123!@#</p>
+                <p><strong>خبير:</strong> expert@judiciary.ye / Expert123!@#</p>
+              </div>
+            </div>
+
             <div className="space-y-3">
               <Label>نوع المستخدم</Label>
               <RadioGroup

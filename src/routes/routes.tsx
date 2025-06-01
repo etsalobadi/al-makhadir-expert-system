@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
@@ -15,12 +14,14 @@ import Announcements from '../pages/Announcements';
 import ElectronicServicesPage from '../pages/ElectronicServices';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
+import CreateUsersPage from '../pages/CreateUsersPage';
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/create-users" element={<CreateUsersPage />} />
       <Route 
         path="/dashboard" 
         element={
