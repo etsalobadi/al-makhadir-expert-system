@@ -220,11 +220,11 @@ const SettingsManagement: React.FC = () => {
                   <Label htmlFor="role">الدور في النظام</Label>
                   <div className="pt-2">
                     <Badge className="bg-judicial-primary text-white">
-                      {user?.userRoles?.includes('admin') && 'مدير النظام'}
-                      {user?.userRoles?.includes('staff') && 'موظف'}
-                      {user?.userRoles?.includes('judge') && 'قاضي'}
-                      {user?.userRoles?.includes('expert') && 'خبير'}
-                      {!user?.userRoles?.length && 'مستخدم'}
+                      {user?.roles?.includes('admin') && 'مدير النظام'}
+                      {user?.roles?.includes('staff') && 'موظف'}
+                      {user?.roles?.includes('judge') && 'قاضي'}
+                      {user?.roles?.includes('expert') && 'خبير'}
+                      {!user?.roles?.length && 'مستخدم'}
                     </Badge>
                   </div>
                 </div>
