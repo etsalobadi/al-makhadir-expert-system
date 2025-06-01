@@ -15,7 +15,7 @@ const CreateTestUsers: React.FC = () => {
     {
       email: 'admin@judiciary.ye',
       password: 'Admin123!@#',
-      role: 'admin',
+      role: 'admin' as const,
       name: 'مدير النظام الرئيسي',
       userData: {
         name: 'مدير النظام الرئيسي',
@@ -25,7 +25,7 @@ const CreateTestUsers: React.FC = () => {
     {
       email: 'staff@judiciary.ye',
       password: 'Staff123!@#',
-      role: 'staff',
+      role: 'staff' as const,
       name: 'موظف النظام',
       userData: {
         name: 'موظف النظام',
@@ -35,7 +35,7 @@ const CreateTestUsers: React.FC = () => {
     {
       email: 'judge@judiciary.ye',
       password: 'Judge123!@#',
-      role: 'judge',
+      role: 'judge' as const,
       name: 'قاضي المحكمة',
       userData: {
         name: 'قاضي المحكمة',
@@ -45,7 +45,7 @@ const CreateTestUsers: React.FC = () => {
     {
       email: 'expert@judiciary.ye',
       password: 'Expert123!@#',
-      role: 'expert',
+      role: 'expert' as const,
       name: 'خبير قضائي',
       userData: {
         name: 'خبير قضائي',
@@ -82,7 +82,7 @@ const CreateTestUsers: React.FC = () => {
         if (authData.user) {
           console.log(`User created successfully: ${user.email}, ID: ${authData.user.id}`);
 
-          // Add user role
+          // Add user role with correct property name
           const { error: roleError } = await supabase
             .from('user_roles')
             .insert({
