@@ -1,36 +1,40 @@
 
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import LoginForm from '../components/auth/LoginForm';
+import { useAuthContext } from '../context/AuthContext';
+import EnhancedLoginForm from '../components/auth/EnhancedLoginForm';
 
 const Login: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthContext();
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" />;
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100 p-4">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-amber-50 to-amber-100 p-4">
       <div className="mb-8 text-center">
         <img 
           src="/placeholder.svg"
-          alt="Logo" 
-          className="h-16 w-auto mb-4"
+          alt="شعار مركز خبراء القضاء" 
+          className="h-20 w-auto mb-4 mx-auto"
         />
-        <h1 className="text-3xl font-bold text-judicial-primary">
+        <h1 className="text-3xl font-bold text-judicial-primary mb-2">
           مركز خبراء القضاء
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600">
           المحكمة الابتدائية بالمخادر
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          نظام إدارة الخبراء والقضايا القضائية
         </p>
       </div>
       
-      <LoginForm />
+      <EnhancedLoginForm />
       
       <div className="mt-8 text-center text-sm text-gray-500">
         <p>© {new Date().getFullYear()} | جميع الحقوق محفوظة</p>
+        <p className="mt-1">وزارة العدل - الجمهورية اليمنية</p>
       </div>
     </div>
   );

@@ -51,6 +51,24 @@ export const NAVIGATION_ITEMS = [
     roles: [USER_ROLES.ADMIN, USER_ROLES.STAFF, USER_ROLES.JUDGE, USER_ROLES.INHERITANCE_OFFICER],
   },
   {
+    name: 'بوابة الجلسات',
+    path: '/sessions',
+    icon: 'Video',
+    roles: [USER_ROLES.ADMIN, USER_ROLES.STAFF, USER_ROLES.JUDGE, USER_ROLES.EXPERT],
+  },
+  {
+    name: 'الإعلانات القضائية',
+    path: '/announcements',
+    icon: 'Bell',
+    roles: [USER_ROLES.ADMIN, USER_ROLES.STAFF, USER_ROLES.JUDGE, USER_ROLES.EXPERT, USER_ROLES.NOTARY, USER_ROLES.INHERITANCE_OFFICER],
+  },
+  {
+    name: 'الخدمات الإلكترونية',
+    path: '/electronic-services',
+    icon: 'Database',
+    roles: [USER_ROLES.ADMIN, USER_ROLES.STAFF, USER_ROLES.JUDGE],
+  },
+  {
     name: 'الشكاوى',
     path: '/complaints',
     icon: 'AlertCircle',

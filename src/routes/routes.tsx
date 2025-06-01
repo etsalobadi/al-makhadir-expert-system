@@ -10,6 +10,9 @@ import Inheritance from '../pages/Inheritance';
 import Complaints from '../pages/Complaints';
 import Reports from '../pages/Reports';
 import Settings from '../pages/Settings';
+import Sessions from '../pages/Sessions';
+import Announcements from '../pages/Announcements';
+import ElectronicServicesPage from '../pages/ElectronicServices';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
 
@@ -47,6 +50,30 @@ const AppRoutes: React.FC = () => {
         element={
           <MainLayout>
             <Inheritance />
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/sessions" 
+        element={
+          <MainLayout>
+            <Sessions />
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/announcements" 
+        element={
+          <MainLayout>
+            <Announcements />
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/electronic-services" 
+        element={
+          <MainLayout>
+            <ElectronicServicesPage />
           </MainLayout>
         } 
       />
