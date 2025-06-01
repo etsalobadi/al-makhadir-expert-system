@@ -37,6 +37,7 @@ export const useAuth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         if (session?.user) {
           const userWithRoles = await enrichUserWithRoles(session.user);
@@ -51,6 +52,7 @@ export const useAuth = () => {
 
     // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       if (session?.user) {
         const userWithRoles = await enrichUserWithRoles(session.user);
@@ -64,6 +66,8 @@ export const useAuth = () => {
 
   const enrichUserWithRoles = async (user: User): Promise<AuthUser> => {
     try {
+      console.log('Enriching user with roles for:', user.email, 'ID:', user.id);
+      
       // Fetch user roles
       const { data: rolesData, error } = await supabase
         .from('user_roles')
@@ -75,12 +79,15 @@ export const useAuth = () => {
         return user as AuthUser;
       }
 
+      console.log('Roles data:', rolesData);
       const roles = rolesData?.map(r => r.role) || [];
       setUserRoles(roles);
       
       // Determine user type based on roles
       const internalRoles = ['admin', 'staff', 'judge'];
       const userType = roles.some(role => internalRoles.includes(role)) ? 'internal' : 'external';
+
+      console.log('User roles set:', roles, 'User type:', userType);
 
       return {
         ...user,
@@ -271,9 +278,81 @@ export const useAuth = () => {
     isLoading,
     userRoles,
     login,
-    loginWithOTP,
-    verifyOTP,
-    signup,
+    loginWithOTP: async (phone: string) => {
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          phone,
+          options: {
+            channel: 'sms'
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "تم إرسال رمز التحقق",
+          description: "سيتم إرسال رمز التحقق إلى رقم هاتفك"
+        });
+      } catch (error: any) {
+        toast({
+          title: "خطأ في إرسال رمز التحقق",
+          description: error.message,
+          variant: "destructive"
+        });
+        throw error;
+      }
+    },
+    verifyOTP: async (phone: string, token: string) => {
+      try {
+        const { error } = await supabase.auth.verifyOtp({
+          phone,
+          token,
+          type: 'sms'
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "تم التحقق بنجاح",
+          description: "مرحباً بك في النظام"
+        });
+      } catch (error: any) {
+        toast({
+          title: "خطأ في التحقق",
+          description: error.message,
+          variant: "destructive"
+        });
+        throw error;
+      }
+    },
+    signup: async (email: string, password: string, userData: any) => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: userData
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "تم إنشاء الحساب بنجاح",
+          description: "يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب"
+        });
+      } catch (error: any) {
+        toast({
+          title: "خطأ في إنشاء الحساب",
+          description: error.message,
+          variant: "destructive"
+        });
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
     logout,
     resetPassword,
     hasRole,
