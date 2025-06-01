@@ -10,12 +10,65 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { User, Bell, Shield, Globe, Database, Save } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useUserSettings } from '@/hooks/useUserSettings';
+import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 
 const SettingsManagement: React.FC = () => {
   const { user } = useAuth();
-  const { settings, loading, updateSettings } = useUserSettings();
+  const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const [saving, setSaving] = useState(false);
+
+  // Type-safe helper functions to handle Json types from database
+  const getNotifications = (settings: any) => {
+    const notifications = settings?.notifications;
+    if (typeof notifications === 'object' && notifications !== null) {
+      return {
+        email: notifications.email ?? true,
+        sms: notifications.sms ?? false,
+        push: notifications.push ?? true,
+        system: notifications.system ?? true,
+      };
+    }
+    return {
+      email: true,
+      sms: false,
+      push: true,
+      system: true,
+    };
+  };
+
+  const getSecurity = (settings: any) => {
+    const security = settings?.security;
+    if (typeof security === 'object' && security !== null) {
+      return {
+        twoFactor: security.twoFactor ?? false,
+        sessionTimeout: security.sessionTimeout ?? '30',
+        passwordExpiry: security.passwordExpiry ?? '90',
+      };
+    }
+    return {
+      twoFactor: false,
+      sessionTimeout: '30',
+      passwordExpiry: '90',
+    };
+  };
+
+  const getSystem = (settings: any) => {
+    const system = settings?.system;
+    if (typeof system === 'object' && system !== null) {
+      return {
+        auditLog: system.auditLog ?? true,
+        autoBackup: system.autoBackup ?? true,
+        backupFrequency: system.backupFrequency ?? 'daily',
+        dataRetention: system.dataRetention ?? '365',
+      };
+    }
+    return {
+      auditLog: true,
+      autoBackup: true,
+      backupFrequency: 'daily',
+      dataRetention: '365',
+    };
+  };
 
   const handleInputChange = (field: string, value: any) => {
     if (!settings) return;
@@ -24,28 +77,48 @@ const SettingsManagement: React.FC = () => {
 
   const handleNestedChange = (section: string, field: string, value: any) => {
     if (!settings) return;
-    const currentSection = settings[section as keyof typeof settings];
-    if (typeof currentSection === 'object' && currentSection !== null) {
-      updateSettings({
-        [section]: {
-          ...currentSection,
-          [field]: value
-        }
-      });
+    
+    let currentSection;
+    if (section === 'notifications') {
+      currentSection = getNotifications(settings);
+    } else if (section === 'security') {
+      currentSection = getSecurity(settings);
+    } else if (section === 'system') {
+      currentSection = getSystem(settings);
+    } else {
+      return;
     }
+
+    updateSettings({
+      [section]: {
+        ...currentSection,
+        [field]: value
+      }
+    });
   };
 
   const saveAllSettings = async () => {
     if (!settings) return;
     setSaving(true);
     try {
-      await updateSettings(settings);
+      // Create a properly typed settings object
+      const settingsToSave: Partial<UserSettings> = {
+        name: settings.name,
+        email: settings.email,
+        phone: settings.phone,
+        language: settings.language,
+        timezone: settings.timezone,
+        notifications: getNotifications(settings),
+        security: getSecurity(settings),
+        system: getSystem(settings),
+      };
+      await updateSettings(settingsToSave);
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-judicial-primary"></div>
@@ -61,6 +134,10 @@ const SettingsManagement: React.FC = () => {
     );
   }
 
+  const notifications = getNotifications(settings);
+  const security = getSecurity(settings);
+  const systemSettings = getSystem(settings);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -70,11 +147,11 @@ const SettingsManagement: React.FC = () => {
         </div>
         <Button 
           onClick={saveAllSettings} 
-          disabled={saving}
+          disabled={saving || isUpdating}
           className="bg-judicial-primary hover:bg-judicial-primary/90"
         >
           <Save className="w-4 h-4 ml-2" />
-          {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+          {saving || isUpdating ? 'جاري الحفظ...' : 'حفظ التغييرات'}
         </Button>
       </div>
 
@@ -143,11 +220,11 @@ const SettingsManagement: React.FC = () => {
                   <Label htmlFor="role">الدور في النظام</Label>
                   <div className="pt-2">
                     <Badge className="bg-judicial-primary text-white">
-                      {user?.role === 'admin' && 'مدير النظام'}
-                      {user?.role === 'staff' && 'موظف'}
-                      {user?.role === 'judge' && 'قاضي'}
-                      {user?.role === 'expert' && 'خبير'}
-                      {!user?.role && 'مستخدم'}
+                      {user?.userRoles?.includes('admin') && 'مدير النظام'}
+                      {user?.userRoles?.includes('staff') && 'موظف'}
+                      {user?.userRoles?.includes('judge') && 'قاضي'}
+                      {user?.userRoles?.includes('expert') && 'خبير'}
+                      {!user?.userRoles?.length && 'مستخدم'}
                     </Badge>
                   </div>
                 </div>
@@ -171,7 +248,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام الإشعارات عبر البريد الإلكتروني</p>
                   </div>
                   <Switch
-                    checked={settings.notifications.email}
+                    checked={notifications.email}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'email', checked)}
                   />
                 </div>
@@ -181,7 +258,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام الإشعارات عبر الرسائل النصية</p>
                   </div>
                   <Switch
-                    checked={settings.notifications.sms}
+                    checked={notifications.sms}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'sms', checked)}
                   />
                 </div>
@@ -191,7 +268,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام إشعارات النظام والتحديثات</p>
                   </div>
                   <Switch
-                    checked={settings.notifications.system}
+                    checked={notifications.system}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'system', checked)}
                   />
                 </div>
@@ -201,7 +278,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">استلام الإشعارات الفورية في المتصفح</p>
                   </div>
                   <Switch
-                    checked={settings.notifications.push}
+                    checked={notifications.push}
                     onCheckedChange={(checked) => handleNestedChange('notifications', 'push', checked)}
                   />
                 </div>
@@ -225,14 +302,14 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">تفعيل التحقق بخطوتين لحماية إضافية</p>
                   </div>
                   <Switch
-                    checked={settings.security.twoFactor}
+                    checked={security.twoFactor}
                     onCheckedChange={(checked) => handleNestedChange('security', 'twoFactor', checked)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>انتهاء صلاحية الجلسة (بالدقائق)</Label>
                   <Select
-                    value={settings.security.sessionTimeout}
+                    value={security.sessionTimeout}
                     onValueChange={(value) => handleNestedChange('security', 'sessionTimeout', value)}
                   >
                     <SelectTrigger>
@@ -249,7 +326,7 @@ const SettingsManagement: React.FC = () => {
                 <div className="space-y-2">
                   <Label>انتهاء صلاحية كلمة المرور (بالأيام)</Label>
                   <Select
-                    value={settings.security.passwordExpiry}
+                    value={security.passwordExpiry}
                     onValueChange={(value) => handleNestedChange('security', 'passwordExpiry', value)}
                   >
                     <SelectTrigger>
@@ -328,14 +405,14 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">تفعيل النسخ الاحتياطي التلقائي للبيانات</p>
                   </div>
                   <Switch
-                    checked={settings.system.autoBackup}
+                    checked={systemSettings.autoBackup}
                     onCheckedChange={(checked) => handleNestedChange('system', 'autoBackup', checked)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>تكرار النسخ الاحتياطي</Label>
                   <Select
-                    value={settings.system.backupFrequency}
+                    value={systemSettings.backupFrequency}
                     onValueChange={(value) => handleNestedChange('system', 'backupFrequency', value)}
                   >
                     <SelectTrigger>
@@ -352,7 +429,7 @@ const SettingsManagement: React.FC = () => {
                 <div className="space-y-2">
                   <Label>فترة الاحتفاظ بالبيانات (بالأيام)</Label>
                   <Input
-                    value={settings.system.dataRetention}
+                    value={systemSettings.dataRetention}
                     onChange={(e) => handleNestedChange('system', 'dataRetention', e.target.value)}
                     placeholder="365"
                   />
@@ -363,7 +440,7 @@ const SettingsManagement: React.FC = () => {
                     <p className="text-sm text-gray-500">تسجيل جميع العمليات في النظام</p>
                   </div>
                   <Switch
-                    checked={settings.system.auditLog}
+                    checked={systemSettings.auditLog}
                     onCheckedChange={(checked) => handleNestedChange('system', 'auditLog', checked)}
                   />
                 </div>
