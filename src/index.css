@@ -175,13 +175,52 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
+
+  /* Responsive grid utilities */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  }
+
+  .grid-cards {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+
+  /* Mobile-first layout utilities */
+  .container-mobile {
+    @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
+  }
+
+  .section-spacing {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+}
+
+/* Responsive breakpoint utilities */
+@screen sm {
+  .hide-mobile {
+    @apply block;
+  }
+  
+  .show-mobile {
+    @apply hidden;
+  }
+}
+
+@screen max-sm {
+  .hide-mobile {
+    @apply hidden;
+  }
+  
+  .show-mobile {
+    @apply block;
+  }
 }
 
 /* Print styles */
 @media print {
   body {
     direction: rtl;
-    font-family: 'Cairo', sans-serif;
+    font-family: 'Noto Sans Arabic', sans-serif;
     -webkit-print-color-adjust: exact;
     color-adjust: exact;
   }
@@ -219,6 +258,11 @@
   .print-page:last-child {
     page-break-after: auto;
   }
+
+  /* Hide interactive elements in print */
+  button, .btn, .no-print {
+    display: none !important;
+  }
 }
 
 /* Animation utilities */
@@ -233,8 +277,36 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .animate-slide-in {
   animation: slideIn 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.3s ease-out;
 }
 
 /* Custom utilities for judicial system */
@@ -256,4 +328,46 @@
 
 .status-updated {
   @apply bg-blue-100 text-blue-800 border-blue-200;
+}
+
+/* Enhanced responsive utilities for mobile */
+@media (max-width: 640px) {
+  .mobile-stack {
+    @apply flex-col space-y-4 space-x-0;
+  }
+  
+  .mobile-full {
+    @apply w-full;
+  }
+  
+  .mobile-text-center {
+    @apply text-center;
+  }
+  
+  .mobile-hidden {
+    @apply hidden;
+  }
+}
+
+/* RTL-specific improvements */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .rtl-margin-left {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .rtl-text-left {
+  text-align: right;
+}
+
+/* Improved contrast and accessibility */
+.high-contrast {
+  @apply text-gray-900 bg-white border-gray-300;
+}
+
+.focus-visible {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
 }

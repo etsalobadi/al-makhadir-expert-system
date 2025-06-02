@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout';
+import ModernLayout from '../components/layout/ModernLayout';
 import Index from '../pages/Index';
 import Dashboard from '../pages/Dashboard';
 import Experts from '../pages/Experts';
@@ -26,81 +26,81 @@ const AppRoutes: React.FC = () => {
       <Route 
         path="/dashboard" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Dashboard />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/experts" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Experts />
-          </MainLayout>
+          </ModernLayout>
         }
       />
       <Route 
         path="/cases" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Cases />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/inheritance" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Inheritance />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/sessions" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Sessions />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/announcements" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Announcements />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/electronic-services" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <ElectronicServicesPage />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/complaints" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Complaints />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/reports" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Reports />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route 
         path="/settings" 
         element={
-          <MainLayout>
+          <ModernLayout>
             <Settings />
-          </MainLayout>
+          </ModernLayout>
         } 
       />
       <Route path="*" element={<NotFound />} />
