@@ -206,13 +206,30 @@
   }
 }
 
-@screen max-sm {
+/* Enhanced responsive utilities for mobile - using standard media query */
+@media (max-width: 639px) {
   .hide-mobile {
     @apply hidden;
   }
   
   .show-mobile {
     @apply block;
+  }
+  
+  .mobile-stack {
+    @apply flex-col space-y-4 space-x-0;
+  }
+  
+  .mobile-full {
+    @apply w-full;
+  }
+  
+  .mobile-text-center {
+    @apply text-center;
+  }
+  
+  .mobile-hidden {
+    @apply hidden;
   }
 }
 
@@ -328,25 +345,6 @@
 
 .status-updated {
   @apply bg-blue-100 text-blue-800 border-blue-200;
-}
-
-/* Enhanced responsive utilities for mobile */
-@media (max-width: 640px) {
-  .mobile-stack {
-    @apply flex-col space-y-4 space-x-0;
-  }
-  
-  .mobile-full {
-    @apply w-full;
-  }
-  
-  .mobile-text-center {
-    @apply text-center;
-  }
-  
-  .mobile-hidden {
-    @apply hidden;
-  }
 }
 
 /* RTL-specific improvements */
