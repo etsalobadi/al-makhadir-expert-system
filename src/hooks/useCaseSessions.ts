@@ -2,8 +2,20 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { CaseSession } from '@/types/database';
-import { transformCaseSessionsFromDB, transformCaseSessionFromDB } from '@/utils/databaseTransforms';
+
+export interface CaseSession {
+  id: string;
+  case_id: string;
+  session_date: string;
+  session_type: string;
+  status: string;
+  location?: string;
+  notes?: string;
+  transcript?: string;
+  audio_recording?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export const useCaseSessions = (caseId?: string) => {
   const [sessions, setSessions] = useState<CaseSession[]>([]);
@@ -21,8 +33,7 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      const typedSessions = transformCaseSessionsFromDB(data || []);
-      setSessions(typedSessions);
+      setSessions(data || []);
     } catch (error) {
       console.error('Error fetching case sessions:', error);
       toast({
@@ -45,13 +56,12 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      const typedSession = transformCaseSessionFromDB(data);
-      setSessions(prev => [typedSession, ...prev]);
+      setSessions(prev => [data, ...prev]);
       toast({
         title: "نجح",
         description: "تم إنشاء الجلسة بنجاح"
       });
-      return typedSession;
+      return data;
     } catch (error) {
       console.error('Error creating session:', error);
       toast({
@@ -74,13 +84,12 @@ export const useCaseSessions = (caseId?: string) => {
 
       if (error) throw error;
       
-      const typedSession = transformCaseSessionFromDB(data);
-      setSessions(prev => prev.map(s => s.id === id ? typedSession : s));
+      setSessions(prev => prev.map(s => s.id === id ? data : s));
       toast({
         title: "نجح",
         description: "تم تحديث الجلسة بنجاح"
       });
-      return typedSession;
+      return data;
     } catch (error) {
       console.error('Error updating session:', error);
       toast({
@@ -104,5 +113,3 @@ export const useCaseSessions = (caseId?: string) => {
     refetch: fetchSessions
   };
 };
-
-export type { CaseSession };
