@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -34,24 +33,36 @@ export const useAuth = () => {
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
 
   useEffect(() => {
-    // Set up auth state listener
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
+        
+        if (!mounted) return;
+
         setSession(session);
         if (session?.user) {
-          const userWithRoles = await enrichUserWithRoles(session.user);
-          setUser(userWithRoles);
+          // Use setTimeout to prevent blocking the auth state change
+          setTimeout(async () => {
+            if (mounted) {
+              const userWithRoles = await enrichUserWithRoles(session.user);
+              setUser(userWithRoles);
+              setIsLoading(false);
+            }
+          }, 0);
         } else {
           setUser(null);
           setUserRoles([]);
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      
       console.log('Initial session check:', session?.user?.email);
       setSession(session);
       if (session?.user) {
@@ -61,14 +72,16 @@ export const useAuth = () => {
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const enrichUserWithRoles = async (user: User): Promise<AuthUser> => {
     try {
       console.log('Enriching user with roles for:', user.email, 'ID:', user.id);
       
-      // Fetch user roles
       const { data: rolesData, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -76,14 +89,17 @@ export const useAuth = () => {
 
       if (error) {
         console.error('Error fetching user roles:', error);
+        toast({
+          title: "خطأ في جلب الأدوار",
+          description: "حدث خطأ في جلب أدوار المستخدم",
+          variant: "destructive"
+        });
         return user as AuthUser;
       }
 
-      console.log('Roles data:', rolesData);
       const roles = rolesData?.map(r => r.role) || [];
       setUserRoles(roles);
       
-      // Determine user type based on roles
       const internalRoles = ['admin', 'staff', 'judge'];
       const userType = roles.some(role => internalRoles.includes(role)) ? 'internal' : 'external';
 
@@ -117,7 +133,6 @@ export const useAuth = () => {
 
       console.log('Login successful:', data);
 
-      // Store user type in session metadata if provided
       if (userType && data.user) {
         await supabase.auth.updateUser({
           data: { userType }
@@ -130,9 +145,19 @@ export const useAuth = () => {
       });
     } catch (error: any) {
       console.error('Login error details:', error);
+      let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
+      
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = 'بيانات تسجيل الدخول غير صحيحة';
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'يرجى تأكيد البريد الإلكتروني أولاً';
+      } else if (error.message.includes('Too many requests')) {
+        errorMessage = 'محاولات كثيرة. يرجى المحاولة لاحقاً';
+      }
+      
       toast({
         title: "خطأ في تسجيل الدخول",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
       throw error;

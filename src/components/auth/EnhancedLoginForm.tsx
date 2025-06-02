@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ const EnhancedLoginForm: React.FC = () => {
   const [userType, setUserType] = useState<'internal' | 'external'>('internal');
   const [showPassword, setShowPassword] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form states
   const [email, setEmail] = useState('');
@@ -26,13 +28,13 @@ const EnhancedLoginForm: React.FC = () => {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
     if (!email || !password) {
       setError('يرجى إدخال جميع الحقول المطلوبة');
+      setIsSubmitting(false);
       return;
     }
-
-    console.log('Attempting login with:', { email, userType });
 
     try {
       await login(email, password, userType);
@@ -40,27 +42,29 @@ const EnhancedLoginForm: React.FC = () => {
       console.error('Login error:', err);
       let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
       
-      if (err.message.includes('Invalid login credentials')) {
-        errorMessage = 'بيانات تسجيل الدخول غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور';
-      } else if (err.message.includes('Email not confirmed')) {
+      if (err.message?.includes('Invalid login credentials')) {
+        errorMessage = 'بيانات تسجيل الدخول غير صحيحة';
+      } else if (err.message?.includes('Email not confirmed')) {
         errorMessage = 'يرجى تأكيد البريد الإلكتروني أولاً';
-      } else if (err.message.includes('Too many requests')) {
+      } else if (err.message?.includes('Too many requests')) {
         errorMessage = 'محاولات كثيرة. يرجى المحاولة لاحقاً';
-      } else {
-        errorMessage = err.message;
       }
       
       setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handlePhoneLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
     if (!otpSent) {
       if (!phone) {
         setError('يرجى إدخال رقم الهاتف');
+        setIsSubmitting(false);
         return;
       }
 
@@ -73,6 +77,7 @@ const EnhancedLoginForm: React.FC = () => {
     } else {
       if (!otpCode) {
         setError('يرجى إدخال رمز التحقق');
+        setIsSubmitting(false);
         return;
       }
 
@@ -82,14 +87,17 @@ const EnhancedLoginForm: React.FC = () => {
         setError(err.message || 'رمز التحقق غير صحيح');
       }
     }
+    setIsSubmitting(false);
   };
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
     if (!resetEmail) {
       setError('يرجى إدخال البريد الإلكتروني');
+      setIsSubmitting(false);
       return;
     }
 
@@ -98,8 +106,12 @@ const EnhancedLoginForm: React.FC = () => {
       setResetEmail('');
     } catch (err: any) {
       setError(err.message || 'حدث خطأ في إرسال رابط إعادة التعيين');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const currentlyLoading = isLoading || isSubmitting;
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -122,23 +134,13 @@ const EnhancedLoginForm: React.FC = () => {
               </div>
             )}
 
-            {/* Credentials Helper */}
-            <div className="bg-blue-50 p-3 rounded-md text-sm border border-blue-200">
-              <p className="font-medium text-blue-800 mb-2">بيانات تسجيل الدخول التجريبية:</p>
-              <div className="space-y-1 text-blue-700">
-                <p><strong>مدير:</strong> admin@judiciary.ye / Admin123!@#</p>
-                <p><strong>موظف:</strong> staff@judiciary.ye / Staff123!@#</p>
-                <p><strong>قاضي:</strong> judge@judiciary.ye / Judge123!@#</p>
-                <p><strong>خبير:</strong> expert@judiciary.ye / Expert123!@#</p>
-              </div>
-            </div>
-
             <div className="space-y-3">
               <Label>نوع المستخدم</Label>
               <RadioGroup
                 value={userType}
                 onValueChange={(value) => setUserType(value as 'internal' | 'external')}
                 className="flex gap-6"
+                disabled={currentlyLoading}
               >
                 <div className="flex items-center space-x-2 space-x-reverse">
                   <RadioGroupItem value="internal" id="internal" />
@@ -164,6 +166,7 @@ const EnhancedLoginForm: React.FC = () => {
                     placeholder="أدخل البريد الإلكتروني"
                     className="pr-10"
                     autoComplete="email"
+                    disabled={currentlyLoading}
                   />
                 </div>
               </div>
@@ -179,11 +182,13 @@ const EnhancedLoginForm: React.FC = () => {
                     placeholder="أدخل كلمة المرور"
                     className="pl-10"
                     autoComplete="current-password"
+                    disabled={currentlyLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                    disabled={currentlyLoading}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 text-gray-400" />
@@ -197,9 +202,9 @@ const EnhancedLoginForm: React.FC = () => {
               <Button 
                 type="submit" 
                 className="w-full bg-judicial-primary hover:bg-judicial-primary/90"
-                disabled={isLoading}
+                disabled={currentlyLoading}
               >
-                {isLoading ? (
+                {currentlyLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="animate-spin rounded-full h-4 w-4 border-2 border-t-0 border-l-0 border-white"></span>
                     جاري تسجيل الدخول...
@@ -235,11 +240,12 @@ const EnhancedLoginForm: React.FC = () => {
                         placeholder="+967xxxxxxxxx"
                         className="pr-10"
                         dir="ltr"
+                        disabled={currentlyLoading}
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    إرسال رمز التحقق
+                  <Button type="submit" className="w-full" disabled={currentlyLoading}>
+                    {currentlyLoading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}
                   </Button>
                 </>
               ) : (
@@ -255,16 +261,18 @@ const EnhancedLoginForm: React.FC = () => {
                       maxLength={6}
                       dir="ltr"
                       className="text-center text-lg tracking-wider"
+                      disabled={currentlyLoading}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    تأكيد رمز التحقق
+                  <Button type="submit" className="w-full" disabled={currentlyLoading}>
+                    {currentlyLoading ? 'جاري التحقق...' : 'تأكيد رمز التحقق'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setOtpSent(false)}
                     className="w-full"
+                    disabled={currentlyLoading}
                   >
                     العودة
                   </Button>
@@ -289,10 +297,11 @@ const EnhancedLoginForm: React.FC = () => {
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
                   placeholder="أدخل البريد الإلكتروني لاسترداد الحساب"
+                  disabled={currentlyLoading}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                إرسال رابط إعادة التعيين
+              <Button type="submit" className="w-full" disabled={currentlyLoading}>
+                {currentlyLoading ? 'جاري الإرسال...' : 'إرسال رابط إعادة التعيين'}
               </Button>
             </form>
 
@@ -302,6 +311,7 @@ const EnhancedLoginForm: React.FC = () => {
                 variant="link"
                 className="text-judicial-primary"
                 onClick={() => setActiveTab('email')}
+                disabled={currentlyLoading}
               >
                 العودة لتسجيل الدخول
               </Button>
@@ -312,7 +322,7 @@ const EnhancedLoginForm: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             ليس لديك حساب؟{' '}
-            <Button variant="link" className="p-0 h-auto text-judicial-primary">
+            <Button variant="link" className="p-0 h-auto text-judicial-primary" disabled={currentlyLoading}>
               إنشاء حساب جديد
             </Button>
           </p>
