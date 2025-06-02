@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAuth } from '../../context/AuthContext';
 import { 
   Home, 
@@ -16,7 +16,6 @@ import {
   ChevronDown,
   ChevronRight,
   Scale,
-  User,
   Briefcase,
   ClipboardList,
   BarChart3,
@@ -42,7 +41,7 @@ const NAVIGATION_GROUPS: NavigationGroup[] = [
     title: "لوحة التحكم",
     items: [
       {
-        path: '/',
+        path: '/dashboard',
         name: 'الرئيسية',
         icon: Home,
         roles: ['admin', 'staff', 'judge', 'expert', 'notary', 'inheritance_officer']
@@ -149,18 +148,18 @@ const ModernSidebar: React.FC = () => {
   const SidebarContent = () => (
     <>
       {/* Logo and Title */}
-      <div className="p-6 border-b border-sidebar-border">
+      <div className="p-6 border-b border-gray-700">
         <div className="flex items-center justify-center mb-4">
-          <div className="w-12 h-12 bg-sidebar-primary rounded-lg flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-lg">
             <Scale className="w-6 h-6 text-white" />
           </div>
         </div>
         {!isCollapsed && (
           <div className="text-center">
-            <h2 className="text-lg font-bold text-sidebar-primary mb-1">
+            <h2 className="text-lg font-bold text-white mb-1">
               نظام المخادر
             </h2>
-            <p className="text-sm text-sidebar-foreground/70">
+            <p className="text-sm text-gray-300">
               إدارة الخبراء والقضايا
             </p>
           </div>
@@ -179,22 +178,51 @@ const ModernSidebar: React.FC = () => {
             return (
               <div key={group.title} className="space-y-1">
                 {!isCollapsed && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/10"
-                    onClick={() => toggleGroup(group.title)}
-                  >
-                    <span className="text-xs font-medium">{group.title}</span>
-                    {isExpanded ? (
-                      <ChevronDown className="w-4 h-4" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4" />
-                    )}
-                  </Button>
+                  <Collapsible open={isExpanded} onOpenChange={() => toggleGroup(group.title)}>
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-between text-gray-300 hover:text-white hover:bg-gray-700/50 transition-colors"
+                      >
+                        <span className="text-xs font-medium">{group.title}</span>
+                        {isExpanded ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent className="space-y-1 mr-2">
+                      {group.items.map((item) => {
+                        if (!hasAccess(item.roles)) return null;
+                        
+                        const isActive = location.pathname === item.path;
+                        const IconComponent = item.icon;
+
+                        return (
+                          <Link key={item.path} to={item.path}>
+                            <Button
+                              variant="ghost"
+                              className={cn(
+                                "w-full justify-start gap-3 text-base font-medium transition-all duration-200",
+                                isActive
+                                  ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg"
+                                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                              )}
+                            >
+                              <IconComponent className="w-5 h-5 flex-shrink-0" />
+                              <span>{item.name}</span>
+                            </Button>
+                          </Link>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
                 
-                {(isExpanded || isCollapsed) && (
-                  <div className={cn("space-y-1", !isCollapsed && "mr-2")}>
+                {isCollapsed && (
+                  <div className="space-y-1">
                     {group.items.map((item) => {
                       if (!hasAccess(item.roles)) return null;
                       
@@ -206,15 +234,13 @@ const ModernSidebar: React.FC = () => {
                           <Button
                             variant="ghost"
                             className={cn(
-                              "w-full justify-start gap-3 text-base font-medium transition-all duration-200",
+                              "w-full justify-center p-2 transition-all duration-200",
                               isActive
-                                ? "bg-sidebar-primary text-white shadow-lg"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                              isCollapsed && "justify-center px-2"
+                                ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg"
+                                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                             )}
                           >
-                            <IconComponent className="w-5 h-5 flex-shrink-0" />
-                            {!isCollapsed && <span>{item.name}</span>}
+                            <IconComponent className="w-5 h-5" />
                           </Button>
                         </Link>
                       );
@@ -228,14 +254,14 @@ const ModernSidebar: React.FC = () => {
       </ScrollArea>
 
       {/* Support Section */}
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-gray-700">
         {!isCollapsed && (
-          <div className="bg-sidebar-accent/20 p-3 rounded-lg text-sm">
-            <p className="font-bold text-sidebar-primary mb-1">الدعم الفني</p>
-            <p className="text-sidebar-foreground/70 mb-2">
+          <div className="bg-gray-700/50 p-3 rounded-lg text-sm">
+            <p className="font-bold text-yellow-400 mb-1">الدعم الفني</p>
+            <p className="text-gray-300 mb-2">
               للمساعدة والدعم التقني
             </p>
-            <p className="text-sidebar-foreground/70">📞 789-456-123</p>
+            <p className="text-gray-300">📞 789-456-123</p>
           </div>
         )}
       </div>
@@ -264,14 +290,14 @@ const ModernSidebar: React.FC = () => {
 
       {/* Desktop Sidebar */}
       <div className={cn(
-        "hidden md:flex flex-col h-screen bg-sidebar border-l border-sidebar-border transition-all duration-300",
+        "hidden md:flex flex-col h-screen bg-gradient-to-b from-gray-800 to-gray-900 border-l border-gray-700 transition-all duration-300 shadow-xl",
         isCollapsed ? "w-16" : "w-64"
       )}>
         {/* Collapse Toggle */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -left-4 top-6 bg-white border border-sidebar-border shadow-sm z-10"
+          className="absolute -left-4 top-6 bg-white border border-gray-300 shadow-sm z-10 hover:bg-gray-50"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rotate-180" />}
@@ -282,7 +308,7 @@ const ModernSidebar: React.FC = () => {
 
       {/* Mobile Sidebar */}
       <div className={cn(
-        "fixed top-0 right-0 h-full w-80 bg-sidebar border-l border-sidebar-border z-50 transform transition-transform duration-300 md:hidden",
+        "fixed top-0 right-0 h-full w-80 bg-gradient-to-b from-gray-800 to-gray-900 border-l border-gray-700 z-50 transform transition-transform duration-300 md:hidden shadow-2xl",
         isMobileOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <SidebarContent />

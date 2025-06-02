@@ -39,7 +39,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex w-full">
+    <div className="min-h-screen bg-gray-50 flex w-full" dir="rtl">
       <ModernSidebar />
       
       <div className="flex flex-col flex-1 min-w-0">
