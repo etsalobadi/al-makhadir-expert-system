@@ -21,7 +21,8 @@ import {
   ClipboardList,
   BarChart3,
   Menu,
-  X
+  X,
+  LucideIcon
 } from 'lucide-react';
 
 interface NavigationGroup {
@@ -32,7 +33,7 @@ interface NavigationGroup {
 interface NavigationItem {
   path: string;
   name: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   roles: string[];
 }
 
