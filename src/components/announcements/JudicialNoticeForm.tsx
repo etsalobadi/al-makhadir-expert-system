@@ -52,170 +52,245 @@ const JudicialNoticeForm: React.FC = () => {
             <head>
               <title>إعلان قضائي</title>
               <style>
-                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
                 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
                 
-                 body {
-                   font-family: 'Noto Sans Arabic', sans-serif;
-                   direction: rtl;
-                   margin: 0;
-                   padding: 20px;
-                   line-height: 1.6;
-                   color: #000;
-                   background: white;
-                 }
-                 
-                 .official-notice {
-                   max-width: 210mm;
-                   margin: 0 auto;
-                   background: white;
-                   border: 2px solid #000;
-                   padding: 20px;
-                   position: relative;
-                 }
-                 
-                 table {
-                   width: 100%;
-                   border-collapse: collapse;
-                   font-family: 'Noto Sans Arabic', sans-serif;
-                 }
-                 
-                 td {
-                   border: 1px solid #000;
-                   padding: 12px;
-                   text-align: center;
-                 }
-                 
-                 .header-row {
-                   background-color: #f5f5f5;
-                   font-weight: bold;
-                   text-align: right;
-                 }
-                
-                .header {
-                  text-align: center;
-                  border-bottom: 2px solid #000;
-                  padding-bottom: 15px;
-                  margin-bottom: 20px;
+                body {
+                  font-family: 'Amiri', serif;
+                  direction: rtl;
+                  margin: 0;
+                  padding: 15mm;
+                  line-height: 1.8;
+                  color: #000;
+                  background: white;
+                  font-size: 14px;
                 }
                 
-                .republic-header {
-                  font-family: 'Amiri', serif;
+                .official-notice {
+                  max-width: 210mm;
+                  min-height: 297mm;
+                  margin: 0 auto;
+                  background: white;
+                  border: 3px solid #000;
+                  padding: 15mm;
+                  position: relative;
+                }
+                
+                .header-section {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  margin-bottom: 20px;
+                  border-bottom: 2px solid #000;
+                  padding-bottom: 15px;
+                }
+                
+                .case-info-box {
+                  border: 2px solid #000;
+                  padding: 10px;
+                  text-align: center;
+                  font-size: 12px;
+                  line-height: 1.6;
+                }
+                
+                .official-header {
+                  text-align: center;
+                  flex: 1;
+                  margin: 0 20px;
+                }
+                
+                .republic-title {
                   font-size: 18px;
                   font-weight: bold;
-                  margin-bottom: 10px;
+                  margin-bottom: 8px;
+                  font-family: 'Amiri', serif;
+                }
+                
+                .emblem-container {
+                  margin: 10px 0;
                 }
                 
                 .emblem {
-                  width: 60px;
-                  height: 60px;
-                  margin: 10px auto;
+                  width: 50px;
+                  height: 50px;
                   border: 2px solid #000;
                   border-radius: 50%;
+                  margin: 0 auto;
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                  font-weight: bold;
-                  font-size: 12px;
+                  background: white;
                 }
                 
-                .ministry {
+                .ministry-justice {
                   font-size: 16px;
                   font-weight: bold;
-                  margin: 5px 0;
+                  margin: 8px 0;
                 }
                 
                 .court-name {
                   font-size: 14px;
                   font-weight: bold;
+                  margin-bottom: 5px;
                 }
                 
-                .case-info {
-                  display: flex;
-                  justify-content: space-between;
-                  margin-bottom: 20px;
-                  font-size: 12px;
+                .stamp-area {
+                  border: 2px solid #000;
+                  padding: 8px;
+                  text-align: center;
+                  font-size: 11px;
+                  line-height: 1.4;
                 }
                 
                 .notice-title {
                   text-align: center;
-                  font-size: 20px;
+                  font-size: 24px;
                   font-weight: bold;
-                  margin: 20px 0;
+                  margin: 25px 0;
                   text-decoration: underline;
+                  font-family: 'Amiri', serif;
                 }
                 
-                .notice-content {
+                .notice-body {
                   line-height: 2.5;
-                  font-size: 14px;
+                  font-size: 16px;
+                  text-align: right;
                   margin-bottom: 30px;
-                  text-align: justify;
                 }
                 
                 .dotted-line {
                   border-bottom: 1px dotted #000;
                   display: inline-block;
-                  min-width: 100px;
+                  min-width: 120px;
+                  height: 20px;
                   margin: 0 5px;
                 }
                 
-                .signatures {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 50px;
-                  margin: 40px 0;
+                .blank-line {
+                  border-bottom: 1px dotted #000;
+                  height: 25px;
+                  margin: 15px 0;
                 }
                 
-                .signature-section {
+                .paragraph {
+                  margin-bottom: 20px;
+                  text-align: justify;
+                }
+                
+                .center-text {
                   text-align: center;
+                  font-weight: bold;
+                  margin: 25px 0;
+                  font-size: 18px;
+                }
+                
+                .signatures-section {
+                  display: flex;
+                  justify-content: space-between;
+                  margin: 50px 0 40px 0;
+                }
+                
+                .signature-box {
+                  text-align: center;
+                  width: 150px;
                 }
                 
                 .signature-title {
                   font-weight: bold;
-                  margin-bottom: 40px;
+                  margin-bottom: 30px;
+                  font-size: 14px;
                 }
                 
                 .signature-line {
-                  border-bottom: 1px solid #000;
+                  border-bottom: 2px solid #000;
                   height: 40px;
-                  margin-bottom: 5px;
+                  margin-bottom: 10px;
+                }
+                
+                .signature-name {
+                  font-size: 12px;
+                  text-align: center;
                 }
                 
                 .delivery-section {
+                  border-top: 3px solid #000;
+                  padding-top: 25px;
                   margin-top: 40px;
-                  border-top: 2px solid #000;
-                  padding-top: 20px;
                 }
                 
                 .delivery-title {
                   text-align: center;
+                  font-size: 20px;
                   font-weight: bold;
-                  font-size: 16px;
-                  margin-bottom: 20px;
+                  margin-bottom: 25px;
                   text-decoration: underline;
+                  font-family: 'Amiri', serif;
                 }
                 
                 .delivery-content {
-                  line-height: 3;
+                  line-height: 2.5;
                   font-size: 14px;
                 }
                 
-                .delivery-grid {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 30px;
-                  margin-top: 20px;
+                .witnesses-section {
+                  display: flex;
+                  justify-content: space-between;
+                  margin: 30px 0;
+                  gap: 40px;
+                }
+                
+                .witness-box {
+                  flex: 1;
+                }
+                
+                .witness-title {
+                  margin-bottom: 10px;
+                  font-weight: bold;
+                }
+                
+                .witness-signature {
+                  border-bottom: 1px solid #000;
+                  height: 30px;
+                  margin-bottom: 10px;
+                }
+                
+                .witness-details {
+                  border-bottom: 1px dotted #000;
+                  height: 20px;
+                  margin-bottom: 5px;
+                }
+                
+                .notifier-section {
+                  margin-top: 30px;
+                }
+                
+                .notifier-title {
+                  margin-bottom: 10px;
+                  font-weight: bold;
+                }
+                
+                .notifier-line {
+                  border-bottom: 1px dotted #000;
+                  height: 25px;
+                  margin-bottom: 10px;
                 }
                 
                 @page {
                   size: A4;
-                  margin: 20mm;
+                  margin: 15mm;
                 }
                 
                 @media print {
                   body {
                     -webkit-print-color-adjust: exact;
                     color-adjust: exact;
+                    margin: 0;
+                    padding: 15mm;
+                  }
+                  
+                  .official-notice {
+                    border: 3px solid #000;
+                    box-shadow: none;
                   }
                 }
               </style>
@@ -330,170 +405,178 @@ const JudicialNoticeForm: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Official Judicial Notice - Exact Match to Official Format */}
-      <div ref={printRef} className="official-notice bg-white border-2 border-black max-w-[210mm] mx-auto" style={{ minHeight: '297mm', padding: '15mm' }}>
-        {/* Official Header Box */}
-        <div className="header-box border-2 border-black mb-4 p-4">
-          <div className="flex justify-between items-start">
-            <div className="text-right text-sm leading-relaxed">
-              <div>رقم القضية:</div>
-              <div>لعام: {noticeData.hijriYear || '1444'} / {noticeData.gregorianYear || '2024'}</div>
-              <div>التاريخ:</div>
-              <div>الموافق:</div>
-              <div className="border-b border-dotted border-black w-32 h-4 mt-1"></div>
-              <div>الموثقة:</div>
-            </div>
-            
-            <div className="text-center flex-1 mx-4">
-              <div className="font-bold text-lg mb-2">الجمهورية اليمنية</div>
-              <div className="w-16 h-16 border-2 border-black rounded-full mx-auto mb-2 flex items-center justify-center">
-                <img src="/lovable-uploads/4d1ac1cb-0781-418e-9eac-962f1bdff8f6.png" alt="شعار الجمهورية" className="w-12 h-12 object-contain" />
-              </div>
-              <div className="font-bold">وزارة العدل</div>
-              <div className="font-bold">محكمة المخادر الابتدائية</div>
-            </div>
-            
-            <div className="text-left text-sm">
-              <div className="bg-gray-100 p-2 border border-black">
-                <div>الجمهورية اليمنية</div>
-                <div>وزارة العدل</div>
-                <div>محكمة المخادر الابتدائية</div>
+      {/* Official Judicial Notice - Exact Match to Official Yemeni Court Format */}
+      <div ref={printRef} className="official-notice bg-white border-3 border-black max-w-[210mm] mx-auto" style={{ minHeight: '297mm', padding: '15mm', fontFamily: 'Amiri, serif' }}>
+        
+        {/* Header Section with Three Parts */}
+        <div className="header-section">
+          {/* Left: Case Information Box */}
+          <div className="case-info-box">
+            <div>رقم القضية: <span className="font-bold">{noticeData.caseNumber || '___/____'}</span></div>
+            <div>لعام: {noticeData.hijriYear || '1445'} هـ</div>
+            <div>الموافق: {noticeData.gregorianYear || '2024'} م</div>
+            <div>التاريخ: ___________</div>
+            <div>الموثقة: ___________</div>
+          </div>
+          
+          {/* Center: Official Header */}
+          <div className="official-header">
+            <div className="republic-title">الجمهورية اليمنية</div>
+            <div className="emblem-container">
+              <div className="emblem">
+                <img src="/lovable-uploads/4d1ac1cb-0781-418e-9eac-962f1bdff8f6.png" alt="شعار الجمهورية" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
               </div>
             </div>
+            <div className="ministry-justice">وزارة العدل</div>
+            <div className="court-name">المحكمة الابتدائية بالمخادر</div>
+          </div>
+          
+          {/* Right: Official Stamp Area */}
+          <div className="stamp-area">
+            <div>الجمهورية اليمنية</div>
+            <div>وزارة العدل</div>
+            <div>المحكمة الابتدائية بالمخادر</div>
+            <div style={{ marginTop: '10px', height: '30px', border: '1px dotted #000' }}></div>
           </div>
         </div>
 
         {/* Notice Title */}
-        <div className="text-center text-xl font-bold mb-6 underline">
+        <div className="notice-title">
           إعــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــلان قضـــــــــــــــــــــــــــــــــــــــــائي
         </div>
 
-        {/* Notice Content */}
-        <div className="notice-content text-right leading-loose text-base">
-          <p className="mb-4">
-            إلى المدعى عليه: 
-            <span className="border-b border-dotted border-black inline-block min-w-[200px] mx-2">
-              {noticeData.defendantName || ''}
-            </span>
-          </p>
+        {/* Notice Body with Official Legal Language */}
+        <div className="notice-body">
+          <div className="paragraph">
+            إلى المدعى عليه السيد/ 
+            <span className="dotted-line">{noticeData.defendantName || ''}</span>
+          </div>
           
-          <div className="border-b border-dotted border-black w-full h-6 mb-4"></div>
+          <div className="blank-line"></div>
           
-          <p className="mb-4">
+          <div className="paragraph">
             المقيم في: 
-            <span className="border-b border-dotted border-black inline-block min-w-[300px] mx-2">
-              {noticeData.defendantAddress || ''}
-            </span>
-          </p>
+            <span className="dotted-line" style={{ minWidth: '350px' }}>{noticeData.defendantAddress || ''}</span>
+          </div>
           
-          <p className="mb-4">
-            في الساعة الثامنة صباحاً من يوم
-            <span className="border-b border-dotted border-black inline-block min-w-[150px] mx-2">
-              {noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'dd/MM/yyyy') : ''}
-            </span>
-            الموافق
-            <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2">
-              {noticeData.hijriYear || '144'} 
-            </span>
-            هـ
-          </p>
+          <div className="paragraph">
+            نحيطكم علماً بأنه قد أُقيمت عليكم الدعوى رقم 
+            <span className="dotted-line">{noticeData.caseNumber || ''}</span>
+            لعام {noticeData.hijriYear || '1445'} هـ الموافق {noticeData.gregorianYear || '2024'} م
+          </div>
           
-          <p className="mb-4">
-            لحضور جلسة المحكمة المحددة لنظر القضية المعنونة
-            <span className="border-b border-dotted border-black inline-block min-w-[200px] mx-2">
-              {noticeData.noticeContent || ''}
-            </span>
-          </p>
+          <div className="paragraph">
+            الخاصة بـ: 
+            <span className="dotted-line" style={{ minWidth: '400px' }}>{noticeData.noticeContent || ''}</span>
+          </div>
           
-          <div className="border-b border-dotted border-black w-full h-6 mb-4"></div>
-          <div className="border-b border-dotted border-black w-full h-6 mb-4"></div>
+          <div className="blank-line"></div>
+          <div className="blank-line"></div>
           
-          <p className="mb-4">
-            وهذا إعلام لك بهذا الموضوع لحضورك في الموعد المذكور وعند عدم حضورك أو عدم إرسال وكيل عنك
-          </p>
-          
-          <p className="mb-4">
-            صدر في يوم المحدد أعلاه بتاريخ 
-            <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2">
-              {format(new Date(), 'dd/MM/yyyy')}
+          <div className="paragraph">
+            <strong>فأنت مكلف بالحضور أمام هذه المحكمة</strong> في تمام الساعة 
+            <span className="dotted-line">{noticeData.sessionTime || 'الثامنة صباحاً'}</span>
+            من يوم 
+            <span className="dotted-line">
+              {noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'EEEE', { locale: ar }) : ''}
             </span>
             الموافق 
-            <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2">
-              {noticeData.hijriYear || '144'}
+            <span className="dotted-line">
+              {noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'dd/MM/yyyy') : ''}
             </span>
-            هـ
-          </p>
+          </div>
           
-          <div className="text-center font-bold my-6">
-            وآخر الطرق...
+          <div className="paragraph">
+            <strong>وفي حالة عدم حضورك أو عدم إرسال وكيل عنك فسوف تنظر الدعوى في غيابك وتصدر المحكمة حكمها وفقاً لما تراه محققاً للعدالة.</strong>
+          </div>
+          
+          <div className="paragraph">
+            هذا للعلم وترتيب ما يلزم...
+          </div>
+          
+          <div className="center-text">
+            وبالله التوفيق
+          </div>
+          
+          <div className="paragraph" style={{ textAlign: 'left', marginTop: '30px' }}>
+            صدر في تاريخ: 
+            <span className="dotted-line">{format(new Date(), 'dd/MM/yyyy')}</span>
+            الموافق 
+            <span className="dotted-line">{noticeData.hijriYear || '1445'}</span>
+            هـ
           </div>
         </div>
 
         {/* Signatures Section */}
-        <div className="signatures-section flex justify-between mt-8 mb-8">
-          <div className="text-center">
-            <div className="font-bold mb-4">القاضـــــــــــــــــــي</div>
-            <div className="border-b-2 border-black w-32 h-12 mb-2"></div>
-            <div className="text-sm">{noticeData.judgeName || ''}</div>
+        <div className="signatures-section">
+          <div className="signature-box">
+            <div className="signature-title">القاضـــــــــــــــــــي</div>
+            <div className="signature-line"></div>
+            <div className="signature-name">{noticeData.judgeName || ''}</div>
           </div>
           
-          <div className="text-center">
-            <div className="font-bold mb-4">كاتب المحكمة</div>
-            <div className="border-b-2 border-black w-32 h-12 mb-2"></div>
-            <div className="text-sm"></div>
+          <div className="signature-box">
+            <div className="signature-title">كاتب المحكمة</div>
+            <div className="signature-line"></div>
+            <div className="signature-name"></div>
           </div>
         </div>
 
         {/* Delivery Receipt Section */}
-        <div className="delivery-section border-t-2 border-black pt-6">
-          <div className="text-center font-bold text-lg mb-4 underline">
-            إيصال الشخص المعلن بالحضور
+        <div className="delivery-section">
+          <div className="delivery-title">
+            إيصال استلام وتسليم الإعلان القضائي
           </div>
           
-          <div className="delivery-content text-right leading-loose">
-            <p className="mb-4">
-              توقيع وإيتام المدعى عليه: 
-              <span className="border-b border-dotted border-black inline-block min-w-[300px] mx-2"></span>
-            </p>
+          <div className="delivery-content">
+            <div className="paragraph">
+              تسلم المدعى عليه/ 
+              <span className="dotted-line" style={{ minWidth: '250px' }}></span>
+              أصل الإعلان القضائي بتاريخ 
+              <span className="dotted-line"></span>
+              /
+              <span className="dotted-line" style={{ minWidth: '50px' }}></span>
+              /
+              <span className="dotted-line"></span>
+            </div>
             
-            <p className="mb-4">
-              توقيع أحد أقارب المدعى عليه أو جد: 
-              <span className="border-b border-dotted border-black inline-block min-w-[200px] mx-2"></span>
-            </p>
+            <div className="paragraph">
+              وقع المدعى عليه: 
+              <span className="dotted-line" style={{ minWidth: '300px' }}></span>
+            </div>
             
-            <p className="mb-4">
-              في حالة رفضه استلام الإعلان
-            </p>
+            <div className="paragraph">
+              في حالة رفض الاستلام أو عدم وجود المدعى عليه:
+            </div>
             
-            <div className="grid grid-cols-2 gap-8 mt-6">
-              <div>
-                <p className="mb-2">شهد الشاهد الأول الحيم:</p>
-                <div className="border-b border-black w-full h-8 mb-2"></div>
-                <div className="border-b border-dotted border-black w-full h-6"></div>
+            <div className="witnesses-section">
+              <div className="witness-box">
+                <div className="witness-title">الشاهد الأول:</div>
+                <div>الاسم:</div>
+                <div className="witness-details"></div>
+                <div>التوقيع:</div>
+                <div className="witness-signature"></div>
               </div>
               
-              <div>
-                <p className="mb-2">الشاهد الثاني الحيم:</p>
-                <div className="border-b border-black w-full h-8 mb-2"></div>
-                <div className="border-b border-dotted border-black w-full h-6"></div>
+              <div className="witness-box">
+                <div className="witness-title">الشاهد الثاني:</div>
+                <div>الاسم:</div>
+                <div className="witness-details"></div>
+                <div>التوقيع:</div>
+                <div className="witness-signature"></div>
               </div>
             </div>
             
-            <p className="mt-6 mb-4">
-              تاريخ تسليم الإعلان: 
-              <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2"></span>
-              / 
-              <span className="border-b border-dotted border-black inline-block min-w-[50px] mx-2"></span>
-              / 
-              <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2"></span>
-            </p>
-            
-            <div className="mt-6">
-              <p className="mb-2">القائم بالإعلان:</p>
-              <div className="border-b border-dotted border-black w-full h-6 mb-2"></div>
-              <p className="mb-2">الاسم:</p>
-              <div className="border-b border-dotted border-black w-full h-6 mb-2"></div>
-              <p className="mb-2">الرقم:</p>
+            <div className="notifier-section">
+              <div className="notifier-title">القائم بالتبليغ:</div>
+              <div>الاسم:</div>
+              <div className="notifier-line"></div>
+              <div>الرقم الوظيفي:</div>
+              <div className="notifier-line"></div>
+              <div>التوقيع:</div>
+              <div className="notifier-line"></div>
+              <div>التاريخ:</div>
+              <div className="notifier-line"></div>
             </div>
           </div>
         </div>
