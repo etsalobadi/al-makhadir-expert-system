@@ -251,7 +251,7 @@ const JudicialNoticeForm: React.FC = () => {
                 id="caseNumber"
                 value={noticeData.caseNumber}
                 onChange={(e) => handleInputChange('caseNumber', e.target.value)}
-                placeholder="مثال: 003-2024"
+                placeholder="مثال: 003/2024"
               />
             </div>
             
@@ -286,16 +286,6 @@ const JudicialNoticeForm: React.FC = () => {
             </div>
             
             <div>
-              <Label htmlFor="notifierName">اسم المُبلغ</Label>
-              <Input
-                id="notifierName"
-                value={noticeData.notifierName}
-                onChange={(e) => handleInputChange('notifierName', e.target.value)}
-                placeholder="سعد عبدالله المخلافي"
-              />
-            </div>
-            
-            <div>
               <Label htmlFor="sessionDate">تاريخ الجلسة</Label>
               <Input
                 id="sessionDate"
@@ -325,26 +315,6 @@ const JudicialNoticeForm: React.FC = () => {
                 rows={3}
               />
             </div>
-            
-            <div className="md:col-span-2">
-              <Label htmlFor="hijriYear">السنة الهجرية</Label>
-              <Input
-                id="hijriYear"
-                value={noticeData.hijriYear}
-                onChange={(e) => handleInputChange('hijriYear', e.target.value)}
-                placeholder="1444"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="gregorianYear">السنة الميلادية</Label>
-              <Input
-                id="gregorianYear"
-                value={noticeData.gregorianYear}
-                onChange={(e) => handleInputChange('gregorianYear', e.target.value)}
-                placeholder="2024"
-              />
-            </div>
           </div>
           
           <div className="flex gap-4 mt-6">
@@ -360,117 +330,171 @@ const JudicialNoticeForm: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Official Judicial Notice - Matching Legal Format */}
-      <div ref={printRef} className="official-notice bg-white border-2 border-black p-8 max-w-4xl mx-auto">
-        {/* Official Header */}
-        <div className="header text-center mb-6 pb-4 border-b-2 border-black">
-          <div className="republic-header">الجمهورية اليمنية</div>
-          <div className="emblem">⚖️</div>
-          <div className="ministry">وزارة العدل</div>
-          <div className="court-name">المحكمة الابتدائية بالمخادر</div>
+      {/* Official Judicial Notice - Exact Match to Official Format */}
+      <div ref={printRef} className="official-notice bg-white border-2 border-black max-w-[210mm] mx-auto" style={{ minHeight: '297mm', padding: '15mm' }}>
+        {/* Official Header Box */}
+        <div className="header-box border-2 border-black mb-4 p-4">
+          <div className="flex justify-between items-start">
+            <div className="text-right text-sm leading-relaxed">
+              <div>رقم القضية:</div>
+              <div>لعام: {noticeData.hijriYear || '1444'} / {noticeData.gregorianYear || '2024'}</div>
+              <div>التاريخ:</div>
+              <div>الموافق:</div>
+              <div className="border-b border-dotted border-black w-32 h-4 mt-1"></div>
+              <div>الموثقة:</div>
+            </div>
+            
+            <div className="text-center flex-1 mx-4">
+              <div className="font-bold text-lg mb-2">الجمهورية اليمنية</div>
+              <div className="w-16 h-16 border-2 border-black rounded-full mx-auto mb-2 flex items-center justify-center">
+                <img src="/lovable-uploads/4d1ac1cb-0781-418e-9eac-962f1bdff8f6.png" alt="شعار الجمهورية" className="w-12 h-12 object-contain" />
+              </div>
+              <div className="font-bold">وزارة العدل</div>
+              <div className="font-bold">محكمة المخادر الابتدائية</div>
+            </div>
+            
+            <div className="text-left text-sm">
+              <div className="bg-gray-100 p-2 border border-black">
+                <div>الجمهورية اليمنية</div>
+                <div>وزارة العدل</div>
+                <div>محكمة المخادر الابتدائية</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Case Information */}
-        <div className="case-info">
-          <div>رقم القضية: {noticeData.caseNumber || '003-2024'}</div>
-          <div>لسنة: {noticeData.hijriYear || '1444'}هـ - {noticeData.gregorianYear || '2024'}م</div>
+        {/* Notice Title */}
+        <div className="text-center text-xl font-bold mb-6 underline">
+          إعــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــلان قضـــــــــــــــــــــــــــــــــــــــــائي
         </div>
-
-        {/* Main Notice Title */}
-        <div className="notice-title">إعلان قضائي</div>
 
         {/* Notice Content */}
-        <div className="notice-content">
-          <p>
-            إلى المدعى عليه السيد/ 
-            <span className="dotted-line">{noticeData.defendantName || '........................'}</span>
-          </p>
-          
-          <p>
-            الساكن في: 
-            <span className="dotted-line">{noticeData.defendantAddress || '........................................'}</span>
-          </p>
-          
-          <p>
-            بناء على ما تقتضيه أحكام القانون، وحيث أنه قد حددت جلسة يوم 
-            <span className="dotted-line">
-              {noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'EEEE الموافق dd/MM/yyyy', { locale: ar }) : '..................'}
+        <div className="notice-content text-right leading-loose text-base">
+          <p className="mb-4">
+            إلى المدعى عليه: 
+            <span className="border-b border-dotted border-black inline-block min-w-[200px] mx-2">
+              {noticeData.defendantName || ''}
             </span>
-            في تمام الساعة 
-            <span className="dotted-line">{noticeData.sessionTime || '............'}</span>
-            لنظر القضية المرقومة أعلاه.
           </p>
           
-          <p>
-            وحيث أن موضوع القضية هو: 
-            <span className="dotted-line">{noticeData.noticeContent || '........................................................................................................'}</span>
+          <div className="border-b border-dotted border-black w-full h-6 mb-4"></div>
+          
+          <p className="mb-4">
+            المقيم في: 
+            <span className="border-b border-dotted border-black inline-block min-w-[300px] mx-2">
+              {noticeData.defendantAddress || ''}
+            </span>
           </p>
           
-          <p style={{ fontWeight: 'bold', textAlign: 'center', margin: '20px 0' }}>
-            فأنت مدعو للحضور أمام هذه المحكمة في الموعد المحدد أعلاه
+          <p className="mb-4">
+            في الساعة الثامنة صباحاً من يوم
+            <span className="border-b border-dotted border-black inline-block min-w-[150px] mx-2">
+              {noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'dd/MM/yyyy') : ''}
+            </span>
+            الموافق
+            <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2">
+              {noticeData.hijriYear || '144'} 
+            </span>
+            هـ
           </p>
           
-          <p>
-            وفي حالة عدم حضورك ستنظر المحكمة في القضية غيابياً طبقاً لأحكام القانون.
+          <p className="mb-4">
+            لحضور جلسة المحكمة المحددة لنظر القضية المعنونة
+            <span className="border-b border-dotted border-black inline-block min-w-[200px] mx-2">
+              {noticeData.noticeContent || ''}
+            </span>
           </p>
+          
+          <div className="border-b border-dotted border-black w-full h-6 mb-4"></div>
+          <div className="border-b border-dotted border-black w-full h-6 mb-4"></div>
+          
+          <p className="mb-4">
+            وهذا إعلام لك بهذا الموضوع لحضورك في الموعد المذكور وعند عدم حضورك أو عدم إرسال وكيل عنك
+          </p>
+          
+          <p className="mb-4">
+            صدر في يوم المحدد أعلاه بتاريخ 
+            <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2">
+              {format(new Date(), 'dd/MM/yyyy')}
+            </span>
+            الموافق 
+            <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2">
+              {noticeData.hijriYear || '144'}
+            </span>
+            هـ
+          </p>
+          
+          <div className="text-center font-bold my-6">
+            وآخر الطرق...
+          </div>
         </div>
 
         {/* Signatures Section */}
-        <div className="signatures">
-          <div className="signature-section">
-            <div className="signature-title">القاضي</div>
-            <div className="signature-line"></div>
-            <div>{noticeData.judgeName || 'اسم القاضي'}</div>
+        <div className="signatures-section flex justify-between mt-8 mb-8">
+          <div className="text-center">
+            <div className="font-bold mb-4">القاضـــــــــــــــــــي</div>
+            <div className="border-b-2 border-black w-32 h-12 mb-2"></div>
+            <div className="text-sm">{noticeData.judgeName || ''}</div>
           </div>
           
-          <div className="signature-section">
-            <div className="signature-title">المُبلغ</div>
-            <div className="signature-line"></div>
-            <div>{noticeData.notifierName || 'اسم المُبلغ'}</div>
+          <div className="text-center">
+            <div className="font-bold mb-4">كاتب المحكمة</div>
+            <div className="border-b-2 border-black w-32 h-12 mb-2"></div>
+            <div className="text-sm"></div>
           </div>
         </div>
 
-        {/* Issue Date */}
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
-          <p>حُرر في: {noticeData.issueDate || format(new Date(), 'dd/MM/yyyy')}</p>
-        </div>
-
-        {/* Delivery Section */}
-        <div className="delivery-section">
-          <div className="delivery-title">شهادة التبليغ</div>
+        {/* Delivery Receipt Section */}
+        <div className="delivery-section border-t-2 border-black pt-6">
+          <div className="text-center font-bold text-lg mb-4 underline">
+            إيصال الشخص المعلن بالحضور
+          </div>
           
-          <div className="delivery-content">
-            <p>
-              أشهد أنا الموقع أدناه بأنني قمت بتبليغ هذا الإعلان للمدعى عليه المذكور أعلاه في تاريخ 
-              <span className="dotted-line">..................</span>
+          <div className="delivery-content text-right leading-loose">
+            <p className="mb-4">
+              توقيع وإيتام المدعى عليه: 
+              <span className="border-b border-dotted border-black inline-block min-w-[300px] mx-2"></span>
             </p>
             
-            <div className="delivery-grid">
+            <p className="mb-4">
+              توقيع أحد أقارب المدعى عليه أو جد: 
+              <span className="border-b border-dotted border-black inline-block min-w-[200px] mx-2"></span>
+            </p>
+            
+            <p className="mb-4">
+              في حالة رفضه استلام الإعلان
+            </p>
+            
+            <div className="grid grid-cols-2 gap-8 mt-6">
               <div>
-                <p>توقيع المستلم:</p>
-                <div style={{ borderBottom: '1px solid black', height: '40px', margin: '10px 0' }}></div>
+                <p className="mb-2">شهد الشاهد الأول الحيم:</p>
+                <div className="border-b border-black w-full h-8 mb-2"></div>
+                <div className="border-b border-dotted border-black w-full h-6"></div>
               </div>
               
               <div>
-                <p>الشاهد الأول:</p>
-                <div style={{ borderBottom: '1px solid black', height: '40px', margin: '10px 0' }}></div>
-              </div>
-              
-              <div>
-                <p>الشاهد الثاني:</p>
-                <div style={{ borderBottom: '1px solid black', height: '40px', margin: '10px 0' }}></div>
-              </div>
-              
-              <div>
-                <p>المُبلغ:</p>
-                <div style={{ borderBottom: '1px solid black', height: '40px', margin: '10px 0' }}></div>
+                <p className="mb-2">الشاهد الثاني الحيم:</p>
+                <div className="border-b border-black w-full h-8 mb-2"></div>
+                <div className="border-b border-dotted border-black w-full h-6"></div>
               </div>
             </div>
             
-            <p style={{ marginTop: '20px' }}>
-              ملاحظات: 
-              <span style={{ borderBottom: '1px dotted black', display: 'inline-block', minWidth: '300px', marginRight: '10px' }}></span>
+            <p className="mt-6 mb-4">
+              تاريخ تسليم الإعلان: 
+              <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2"></span>
+              / 
+              <span className="border-b border-dotted border-black inline-block min-w-[50px] mx-2"></span>
+              / 
+              <span className="border-b border-dotted border-black inline-block min-w-[100px] mx-2"></span>
             </p>
+            
+            <div className="mt-6">
+              <p className="mb-2">القائم بالإعلان:</p>
+              <div className="border-b border-dotted border-black w-full h-6 mb-2"></div>
+              <p className="mb-2">الاسم:</p>
+              <div className="border-b border-dotted border-black w-full h-6 mb-2"></div>
+              <p className="mb-2">الرقم:</p>
+            </div>
           </div>
         </div>
       </div>
