@@ -55,24 +55,42 @@ const JudicialNoticeForm: React.FC = () => {
                 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
                 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
                 
-                body {
-                  font-family: 'Noto Sans Arabic', sans-serif;
-                  direction: rtl;
-                  margin: 0;
-                  padding: 20px;
-                  line-height: 1.8;
-                  color: #000;
-                  background: white;
-                }
-                
-                .notice-container {
-                  max-width: 210mm;
-                  margin: 0 auto;
-                  background: white;
-                  border: 3px solid #000;
-                  padding: 20px;
-                  position: relative;
-                }
+                 body {
+                   font-family: 'Noto Sans Arabic', sans-serif;
+                   direction: rtl;
+                   margin: 0;
+                   padding: 20px;
+                   line-height: 1.6;
+                   color: #000;
+                   background: white;
+                 }
+                 
+                 .official-notice {
+                   max-width: 210mm;
+                   margin: 0 auto;
+                   background: white;
+                   border: 2px solid #000;
+                   padding: 20px;
+                   position: relative;
+                 }
+                 
+                 table {
+                   width: 100%;
+                   border-collapse: collapse;
+                   font-family: 'Noto Sans Arabic', sans-serif;
+                 }
+                 
+                 td {
+                   border: 1px solid #000;
+                   padding: 12px;
+                   text-align: center;
+                 }
+                 
+                 .header-row {
+                   background-color: #f5f5f5;
+                   font-weight: bold;
+                   text-align: right;
+                 }
                 
                 .header {
                   text-align: center;
@@ -233,47 +251,27 @@ const JudicialNoticeForm: React.FC = () => {
                 id="caseNumber"
                 value={noticeData.caseNumber}
                 onChange={(e) => handleInputChange('caseNumber', e.target.value)}
-                placeholder="مثال: 144"
+                placeholder="مثال: 003-2024"
               />
             </div>
             
             <div>
-              <Label htmlFor="hijriYear">السنة الهجرية</Label>
+              <Label htmlFor="courtName">المحكمة</Label>
               <Input
-                id="hijriYear"
-                value={noticeData.hijriYear}
-                onChange={(e) => handleInputChange('hijriYear', e.target.value)}
-                placeholder="1444"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="gregorianYear">السنة الميلادية</Label>
-              <Input
-                id="gregorianYear"
-                value={noticeData.gregorianYear}
-                onChange={(e) => handleInputChange('gregorianYear', e.target.value)}
-                placeholder="2024"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="defendantName">اسم المدعى عليه</Label>
-              <Input
-                id="defendantName"
-                value={noticeData.defendantName}
-                onChange={(e) => handleInputChange('defendantName', e.target.value)}
-                placeholder="الاسم الكامل"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="defendantAddress">عنوان المدعى عليه</Label>
-              <Input
-                id="defendantAddress"
+                id="courtName"
                 value={noticeData.defendantAddress}
                 onChange={(e) => handleInputChange('defendantAddress', e.target.value)}
-                placeholder="العنوان التفصيلي"
+                placeholder="محكمة الاستئناف"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="judgeName">المُعلن</Label>
+              <Input
+                id="judgeName"
+                value={noticeData.judgeName}
+                onChange={(e) => handleInputChange('judgeName', e.target.value)}
+                placeholder="القاضي محمد الحسني"
               />
             </div>
             
@@ -288,43 +286,32 @@ const JudicialNoticeForm: React.FC = () => {
             </div>
             
             <div>
-              <Label htmlFor="sessionTime">وقت الجلسة</Label>
+              <Label htmlFor="announcementType">نوع الإعلان</Label>
               <Input
-                id="sessionTime"
+                id="announcementType"
                 value={noticeData.sessionTime}
                 onChange={(e) => handleInputChange('sessionTime', e.target.value)}
-                placeholder="مثال: الساعة الثامنة صباحاً"
+                placeholder="تأجيل جلسة"
               />
             </div>
             
             <div>
-              <Label htmlFor="judgeName">اسم القاضي</Label>
+              <Label htmlFor="description">الوصف</Label>
               <Input
-                id="judgeName"
-                value={noticeData.judgeName}
-                onChange={(e) => handleInputChange('judgeName', e.target.value)}
-                placeholder="اسم القاضي"
+                id="description"
+                value={noticeData.defendantName}
+                onChange={(e) => handleInputChange('defendantName', e.target.value)}
+                placeholder="تأجيل جلسة الاستئناف لأسبوب فنية"
               />
             </div>
             
-            <div>
-              <Label htmlFor="notifierName">اسم المُبلغ</Label>
+            <div className="md:col-span-3">
+              <Label htmlFor="lastUpdate">آخر تحديث</Label>
               <Input
-                id="notifierName"
-                value={noticeData.notifierName}
-                onChange={(e) => handleInputChange('notifierName', e.target.value)}
-                placeholder="اسم المُبلغ"
-              />
-            </div>
-            
-            <div className="md:col-span-2 lg:col-span-3">
-              <Label htmlFor="noticeContent">محتوى الإعلان (اختياري)</Label>
-              <Textarea
-                id="noticeContent"
-                value={noticeData.noticeContent}
-                onChange={(e) => handleInputChange('noticeContent', e.target.value)}
-                placeholder="محتوى إضافي للإعلان..."
-                className="min-h-[100px]"
+                id="lastUpdate"
+                value={noticeData.issueDate}
+                onChange={(e) => handleInputChange('issueDate', e.target.value)}
+                placeholder="15/01/2024"
               />
             </div>
           </div>
@@ -342,126 +329,81 @@ const JudicialNoticeForm: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Print Preview Section */}
-      <div ref={printRef} className="notice-container bg-white border-2 border-gray-800 p-8 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="header">
-          <div className="republic-header">الجمهورية اليمنية</div>
-          <div className="emblem">
-            <div>شعار<br/>الجمهورية</div>
-          </div>
-          <div className="ministry">وزارة العدل</div>
-          <div className="court-name">محكمة المخادر الابتدائية</div>
+      {/* Official Print Preview Section - Matching the official format */}
+      <div ref={printRef} className="official-notice bg-white border-2 border-gray-800 p-8 max-w-4xl mx-auto">
+        {/* Header with system branding */}
+        <div className="text-center mb-6 pb-4 border-b-2 border-gray-800">
+          <div className="text-lg font-bold mb-2">نظام إدارة الخبراء والقضايا القضائية</div>
+          <div className="text-xl font-bold text-blue-900 mb-4">إعلان قضائي</div>
         </div>
 
-        {/* Case Information */}
-        <div className="case-info">
-          <div>
-            <div>رقم القضية: {noticeData.caseNumber || '........'}</div>
-            <div>لعام: {noticeData.hijriYear || '........'}هـ / {noticeData.gregorianYear || '........'}م</div>
-            <div>الموافق: {noticeData.gregorianYear || '........'}م</div>
-          </div>
-          <div style={{ textAlign: 'left' }}>
-            <div>التاريخ: {noticeData.issueDate}</div>
-          </div>
+        {/* Official Notice Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border-2 border-black text-sm">
+            <tbody>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right w-1/4">
+                  رقم القضية
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.caseNumber || '003-2024'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right">
+                  المحكمة
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.defendantAddress || 'محكمة الاستئناف'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right">
+                  المُعلن
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.judgeName || 'القاضي محمد الحسني'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right">
+                  تاريخ الجلسة
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'dd/MM/yyyy') : '25/01/2024'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right">
+                  نوع الإعلان
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.sessionTime || 'تأجيل جلسة'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right">
+                  الوصف
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.defendantName || 'تأجيل جلسة الاستئناف لأسباب فنية'}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-4 py-3 bg-gray-50 font-medium text-right">
+                  آخر تحديث
+                </td>
+                <td className="border border-black px-4 py-3 text-center">
+                  {noticeData.issueDate || '15/01/2024'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* Notice Title */}
-        <div className="notice-title">إعــلان قضـــائي</div>
-
-        {/* Notice Content */}
-        <div className="notice-content">
-          <p>
-            إلى المدعى عليه: <span className="dotted-line" style={{ minWidth: '200px' }}>{noticeData.defendantName}</span>
-          </p>
-          
-          <p style={{ marginTop: '20px' }}>
-            أنت مكلف بالحضور إلى محكمة المخادر الابتدائية
-          </p>
-          
-          <p>
-            في الساعة <span className="dotted-line">{noticeData.sessionTime}</span> 
-            من يوم <span className="dotted-line">{noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'EEEE', { locale: ar }) : '........'}</span> 
-            الموافق <span className="dotted-line">{noticeData.sessionDate ? format(new Date(noticeData.sessionDate), 'dd/MM/yyyy') : '........'}</span>
-          </p>
-          
-          <p>
-            لحضور الدعوى المرفوعة من <span className="dotted-line">المدعي</span> 
-            ضدك <span className="dotted-line">وأقاربك المدعى عليهم معك</span>
-          </p>
-          
-          {noticeData.noticeContent && (
-            <p style={{ marginTop: '20px' }}>
-              {noticeData.noticeContent}
-            </p>
-          )}
-          
-          <p style={{ marginTop: '30px' }}>
-            وهذا إعلان وإنذار أصولي.
-          </p>
-          
-          <p style={{ textAlign: 'left', marginTop: '20px' }}>
-            صدر في يوم <span className="dotted-line">{format(new Date(), 'EEEE', { locale: ar })}</span> 
-            بتاريخ <span className="dotted-line">{noticeData.issueDate}</span>
-          </p>
-          
-          <p style={{ textAlign: 'center', marginTop: '20px' }}>
-            "والله الموفق"
-          </p>
-        </div>
-
-        {/* Signatures */}
-        <div className="signatures">
-          <div className="signature-section">
-            <div className="signature-title">القاضي</div>
-            <div className="signature-line"></div>
-            <div>{noticeData.judgeName || '........................'}</div>
-          </div>
-          
-          <div className="signature-section">
-            <div className="signature-title">رئيس المحكمة</div>
-            <div className="signature-line"></div>
-            <div>........................</div>
-          </div>
-        </div>
-
-        {/* Delivery Section */}
-        <div className="delivery-section">
-          <div className="delivery-title">إيصال الشخص المعلن بالحضور</div>
-          
-          <div className="delivery-content">
-            <p>
-              تم تبليغ واستلام المدعى عليه: <span className="dotted-line" style={{ minWidth: '200px' }}>........................</span>
-            </p>
-            
-            <p>
-              تبليغ أحد أقارب المدعى عليه إذ وجد: <span className="dotted-line" style={{ minWidth: '200px' }}>........................</span>
-            </p>
-            
-            <p>
-              في حالة رفض المدعى عليه استلام الإعلان:
-              <span className="dotted-line" style={{ minWidth: '150px' }}>........................</span>
-            </p>
-            
-            <p>
-              تحت إشهاد شاهدين: 
-              الشاهد الأول: <span className="dotted-line">........................</span>
-              الشاهد الثاني: <span className="dotted-line">........................</span>
-            </p>
-          </div>
-          
-          <div className="delivery-grid">
-            <div>
-              <p>تاريخ تسليم الإعلان: <span className="dotted-line">............/............/............</span></p>
-              <p style={{ marginTop: '30px' }}>القائم بالإعلان</p>
-              <div className="signature-line" style={{ marginTop: '20px' }}></div>
-            </div>
-            
-            <div>
-              <p>الاسم: <span className="dotted-line">........................</span></p>
-              <p>التوقيع: <span className="dotted-line">........................</span></p>
-            </div>
-          </div>
+        {/* Footer with page reference */}
+        <div className="mt-6 text-center text-xs text-gray-600">
+          الصفحة رقم: 5.15.20256/3
         </div>
       </div>
     </div>

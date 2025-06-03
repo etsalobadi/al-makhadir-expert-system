@@ -155,7 +155,7 @@ const JudicialAnnouncements: React.FC = () => {
         @media print {
           body {
             direction: rtl;
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Noto Sans Arabic', sans-serif;
           }
           .no-print {
             display: none !important;
@@ -171,6 +171,17 @@ const JudicialAnnouncements: React.FC = () => {
           }
           th {
             background-color: #f5f5f5;
+          }
+          .official-notice {
+            max-width: 100%;
+            margin: 0;
+            padding: 15px;
+          }
+          .official-notice table {
+            font-size: 12px;
+          }
+          .official-notice td {
+            padding: 8px;
           }
         }
       `}</style>
