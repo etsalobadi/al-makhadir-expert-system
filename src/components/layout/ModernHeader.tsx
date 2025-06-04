@@ -12,8 +12,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { LogOut, User, Settings, Bell, Search, Sun } from 'lucide-react';
+import { LogOut, User, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import NotificationsDropdown from './NotificationsDropdown';
+import SearchBar from './SearchBar';
+import ThemeToggle from './ThemeToggle';
 
 const ModernHeader: React.FC = () => {
   const { user, logout, userRoles } = useAuth();
@@ -56,29 +59,16 @@ const ModernHeader: React.FC = () => {
 
         {/* Center Section - Search (Desktop Only) */}
         <div className="hidden md:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="البحث في النظام..."
-              className="w-full pr-10 bg-gray-50 border-gray-200 focus:bg-white"
-            />
-          </div>
+          <SearchBar />
         </div>
 
         {/* Right Section - Actions & User */}
         <div className="flex items-center gap-3">
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5 text-gray-600" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 text-xs flex items-center justify-center text-white">
-              3
-            </span>
-          </Button>
+          <NotificationsDropdown />
 
           {/* Theme Toggle */}
-          <Button variant="ghost" size="icon">
-            <Sun className="h-5 w-5 text-gray-600" />
-          </Button>
+          <ThemeToggle />
 
           {/* User Menu */}
           {user && (
@@ -135,13 +125,7 @@ const ModernHeader: React.FC = () => {
 
       {/* Mobile Search */}
       <div className="md:hidden mt-3">
-        <div className="relative">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="البحث..."
-            className="w-full pr-10 bg-gray-50 border-gray-200"
-          />
-        </div>
+        <SearchBar />
       </div>
     </header>
   );

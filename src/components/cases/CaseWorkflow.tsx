@@ -89,6 +89,27 @@ const CaseWorkflow: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [cases] = useState(mockCases);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const handleAddNewCase = () => {
+    console.log('إضافة قضية جديدة');
+    // TODO: Navigate to case creation form or open modal
+  };
+  
+  const handleViewDetails = (caseId: string) => {
+    console.log('عرض تفاصيل القضية:', caseId);
+    // TODO: Navigate to case details page or open modal
+  };
+  
+  const handleViewReports = (caseId: string) => {
+    console.log('عرض تقارير القضية:', caseId);
+    // TODO: Navigate to case reports page or open modal
+  };
+  
+  const handleAssignExpert = (caseId: string) => {
+    console.log('تعيين خبير للقضية:', caseId);
+    // TODO: Open expert assignment modal
+  };
   
   const filteredCases = cases.filter(caseItem => {
     const matchesSearch = 
@@ -131,7 +152,10 @@ const CaseWorkflow: React.FC = () => {
             <CardTitle>القضايا والمهام</CardTitle>
             <CardDescription>إدارة ومتابعة القضايا والمهام المسندة للخبراء</CardDescription>
           </div>
-          <Button className="bg-judicial-primary w-full md:w-auto">
+          <Button 
+            className="bg-judicial-primary w-full md:w-auto"
+            onClick={handleAddNewCase}
+          >
             <FileText className="h-4 w-4 ml-2" />
             إضافة قضية جديدة
           </Button>
@@ -228,6 +252,7 @@ const CaseWorkflow: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           className="text-judicial-primary"
+                          onClick={() => handleAssignExpert(caseItem.id)}
                         >
                           <UserPlus className="h-4 w-4 ml-1" />
                           تعيين خبير
@@ -244,16 +269,16 @@ const CaseWorkflow: React.FC = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewDetails(caseItem.id)}>
                             <Eye className="h-4 w-4 ml-2" />
                             عرض التفاصيل
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewReports(caseItem.id)}>
                             <FileText className="h-4 w-4 ml-2" />
                             عرض التقارير
                           </DropdownMenuItem>
                           {!caseItem.assignedTo && (
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAssignExpert(caseItem.id)}>
                               <UserPlus className="h-4 w-4 ml-2" />
                               تعيين خبير
                             </DropdownMenuItem>

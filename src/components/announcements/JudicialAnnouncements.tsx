@@ -13,7 +13,7 @@ import { CalendarIcon, Download, Filter, Search, Eye, AlertCircle, ChevronUp, Ch
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { useAnnouncements, Announcement } from '@/hooks/useAnnouncements';
 import { useFilteredAnnouncements } from '@/hooks/useFilteredAnnouncements';
 import JudicialNoticeForm from './JudicialNoticeForm';
 
@@ -36,6 +36,8 @@ const JudicialAnnouncements: React.FC = () => {
     handleSort,
     resetFilters
   } = useFilteredAnnouncements(announcements);
+  
+  const [activeTab, setActiveTab] = useState('announcements');
 
   const announcementTypes = [
     'استدعاء خبير',
@@ -64,9 +66,68 @@ const JudicialAnnouncements: React.FC = () => {
     }
   };
 
+  const handleExportData = () => {
+    const csvData = filteredAnnouncements.map(announcement => ({
+      'رقم القضية': announcement.caseNumber,
+      'المحكمة': announcement.court,
+      'المُعلن': announcement.announcer,
+      'تاريخ الجلسة': format(announcement.sessionDate, 'dd/MM/yyyy', { locale: ar }),
+      'نوع الإعلان': announcement.announcementType,
+      'الحالة': announcement.status,
+      'آخر تحديث': format(announcement.lastUpdate, 'dd/MM/yyyy', { locale: ar }),
+      'الوصف': announcement.description
+    }));
+
+    const csv = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `judicial_announcements_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleViewTable = () => {
+    setActiveTab('table');
+  };
+
+  const handleDownloadAnnouncement = (announcement: Announcement, fileFormat: 'pdf' | 'word' = 'pdf') => {
+    if (fileFormat === 'pdf') {
+      handlePrintSingle(announcement);
+    } else {
+      // Word format export
+      const content = `
+        إعلان قضائي
+        
+        رقم القضية: ${announcement.caseNumber}
+        المحكمة: ${announcement.court}
+        المُعلن: ${announcement.announcer}
+        تاريخ الجلسة: ${format(announcement.sessionDate, 'dd/MM/yyyy', { locale: ar })}
+        نوع الإعلان: ${announcement.announcementType}
+        الوصف: ${announcement.description}
+        آخر تحديث: ${format(announcement.lastUpdate, 'dd/MM/yyyy', { locale: ar })}
+      `;
+      
+      const blob = new Blob([content], { type: 'application/msword' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `announcement_${announcement.caseNumber}.doc`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   const handleDownloadPDF = (announcementId: string) => {
-    console.log('تنزيل PDF للإعلان:', announcementId);
-    // TODO: Implement PDF download functionality
+    const announcement = filteredAnnouncements.find(a => a.id === announcementId);
+    if (announcement) {
+      handleDownloadAnnouncement(announcement, 'pdf');
+    }
   };
 
   const handleViewDetails = (announcementId: string) => {
@@ -194,19 +255,23 @@ const JudicialAnnouncements: React.FC = () => {
             <p className="text-gray-600 mt-2">إدارة ومتابعة الإعلانات القضائية للمحكمة</p>
           </div>
           <div className="flex gap-2">
+            <Button onClick={handleExportData} variant="outline">
+              <Download className="w-4 h-4 ml-2" />
+              تصدير البيانات
+            </Button>
+            <Button onClick={handleViewTable} variant="outline">
+              <Eye className="w-4 h-4 ml-2" />
+              عرض في جدول
+            </Button>
             <Button onClick={handlePrintAll}>
               <Printer className="w-4 h-4 ml-2" />
               طباعة الكل
-            </Button>
-            <Button>
-              <Download className="w-4 h-4 ml-2" />
-              تصدير البيانات
             </Button>
           </div>
         </div>
 
         {/* Tabs for different functionalities */}
-        <Tabs defaultValue="announcements" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="announcements" className="flex items-center gap-2">
               <Search className="w-4 h-4" />
@@ -420,13 +485,14 @@ const JudicialAnnouncements: React.FC = () => {
                                 >
                                   <Printer className="w-4 h-4" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDownloadPDF(announcement.id)}
-                                >
-                                  <Download className="w-4 h-4" />
-                                </Button>
+                                 <Button
+                                   variant="ghost"
+                                   size="sm"
+                                   onClick={() => handleDownloadAnnouncement(announcement, 'pdf')}
+                                   title="تحميل PDF"
+                                 >
+                                   <Download className="w-4 h-4" />
+                                 </Button>
                               </div>
                             </TableCell>
                           </TableRow>

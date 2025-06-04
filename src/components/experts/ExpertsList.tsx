@@ -46,11 +46,18 @@ const ExpertsList: React.FC = () => {
   };
   
   const handleDelete = async (id: string) => {
-    try {
-      await deleteExpert(id);
-    } catch (error) {
-      console.error('Error deleting expert:', error);
+    if (window.confirm('هل أنت متأكد من حذف هذا الخبير؟')) {
+      try {
+        await deleteExpert(id);
+      } catch (error) {
+        console.error('Error deleting expert:', error);
+      }
     }
+  };
+  
+  const handleEdit = (id: string) => {
+    console.log('تعديل الخبير:', id);
+    // TODO: Open edit expert modal or navigate to edit page
   };
   
   const getStatusBadge = (status: string) => {
@@ -149,7 +156,10 @@ const ExpertsList: React.FC = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="flex items-center gap-2">
+                            <DropdownMenuItem 
+                              className="flex items-center gap-2"
+                              onClick={() => handleEdit(expert.id)}
+                            >
                               <Edit className="h-4 w-4" /> تعديل
                             </DropdownMenuItem>
                             {expert.status !== EXPERT_STATUS.ACTIVE && (
