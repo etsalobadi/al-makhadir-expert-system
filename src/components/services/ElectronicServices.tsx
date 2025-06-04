@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthContext } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   FileText, 
   Send, 
@@ -39,7 +41,9 @@ interface SystemIntegration {
 }
 
 const ElectronicServices: React.FC = () => {
-  const { user, hasAnyRole, hasRole } = useAuthContext();
+  const { user, hasAnyRole, hasRole } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [requests] = useState<ServiceRequest[]>([
     {
       id: '1',
@@ -159,6 +163,82 @@ const ElectronicServices: React.FC = () => {
   const processingRequests = requests.filter(r => r.status === 'processing');
   const completedRequests = requests.filter(r => r.status === 'completed');
 
+  // Service Action Handlers
+  const handleAssignExpert = async (requestId: string) => {
+    try {
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast({
+        title: "تم إرسال الطلب للخبير",
+        description: "تم إرسال الطلب للخبير المختص بنجاح"
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ في إرسال الطلب",
+        description: "حدث خطأ أثناء إرسال الطلب للخبير",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewRequestDetails = (request: ServiceRequest) => {
+    toast({
+      title: "تفاصيل الطلب",
+      description: `رقم القضية: ${request.case_number}\nالحالة: ${request.status}`
+    });
+  };
+
+  const handleSyncIntegration = async (integrationId: string, systemName: string) => {
+    try {
+      setIsLoading(true);
+      // Simulate sync operation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      toast({
+        title: "تمت المزامنة بنجاح",
+        description: `تم تحديث بيانات ${systemName} بنجاح`
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ في المزامنة",
+        description: "حدث خطأ أثناء مزامنة البيانات",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleIntegrationSettings = (systemName: string) => {
+    toast({
+      title: "إعدادات النظام",
+      description: `فتح إعدادات ${systemName}`
+    });
+  };
+
+  const handleCreateSummons = () => {
+    toast({
+      title: "إنشاء استدعاء جديد",
+      description: "سيتم فتح نموذج إنشاء استدعاء الخبراء"
+    });
+  };
+
+  const handleViewReports = () => {
+    toast({
+      title: "عرض التقارير",
+      description: "سيتم عرض التقارير المتاحة للتحميل"
+    });
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "تصدير البيانات",
+      description: "جاري تحضير البيانات للتصدير..."
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -260,12 +340,21 @@ const ElectronicServices: React.FC = () => {
                     
                     <div className="flex gap-2">
                       {hasRole('judge') && (
-                        <Button size="sm">
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleAssignExpert(request.id)}
+                          disabled={isLoading}
+                        >
                           <Send className="h-4 w-4 ml-1" />
                           إرسال للخبير
                         </Button>
                       )}
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewRequestDetails(request)}
+                        disabled={isLoading}
+                      >
                         <FileText className="h-4 w-4 ml-1" />
                         عرض التفاصيل
                       </Button>
@@ -305,10 +394,21 @@ const ElectronicServices: React.FC = () => {
                     </div>
                     
                     <div className="flex gap-2 mt-4">
-                      <Button size="sm" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => handleSyncIntegration(integration.id, integration.system_name)}
+                        disabled={isLoading}
+                      >
                         مزامنة
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => handleIntegrationSettings(integration.system_name)}
+                        disabled={isLoading}
+                      >
                         إعدادات
                       </Button>
                     </div>
@@ -334,7 +434,10 @@ const ElectronicServices: React.FC = () => {
                 <p className="text-gray-600 mb-4">
                   واجهة مخصصة للقضاة لإرسال طلبات مباشرة للخبراء
                 </p>
-                <Button>
+                <Button
+                  onClick={handleCreateSummons}
+                  disabled={isLoading}
+                >
                   <Send className="h-4 w-4 ml-2" />
                   إنشاء استدعاء جديد
                 </Button>
@@ -358,7 +461,10 @@ const ElectronicServices: React.FC = () => {
                 <p className="text-gray-600 mb-4">
                   تمكين المحكمة من تحميل تقارير الخبراء مباشرة دون تعديل
                 </p>
-                <Button>
+                <Button
+                  onClick={handleViewReports}
+                  disabled={isLoading}
+                >
                   <Download className="h-4 w-4 ml-2" />
                   عرض التقارير المتاحة
                 </Button>
