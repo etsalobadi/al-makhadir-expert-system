@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ import {
 
 const WelcomeSection: React.FC = () => {
   const { user, userRoles } = useAuth();
+  const navigate = useNavigate();
 
   const getRoleDisplayName = (roles: string[]) => {
     if (roles.includes('admin')) return 'مدير النظام';
@@ -23,6 +25,25 @@ const WelcomeSection: React.FC = () => {
     if (roles.includes('notary')) return 'موثق';
     if (roles.includes('inheritance_officer')) return 'مسؤول مواريث';
     return 'مستخدم';
+  };
+
+  const handleQuickAction = (actionTitle: string) => {
+    switch (actionTitle) {
+      case 'قضية جديدة':
+        navigate('/cases');
+        break;
+      case 'إعلان قضائي':
+        navigate('/announcements');
+        break;
+      case 'تسجيل خبير':
+        navigate('/experts');
+        break;
+      case 'جدولة جلسة':
+        navigate('/sessions');
+        break;
+      default:
+        break;
+    }
   };
 
   const quickActions = [
@@ -104,6 +125,7 @@ const WelcomeSection: React.FC = () => {
                   <Button
                     key={index}
                     variant="outline"
+                    onClick={() => handleQuickAction(action.title)}
                     className={`h-auto p-4 flex flex-col items-start gap-3 hover:shadow-md transition-all duration-200 ${action.color}`}
                   >
                     <div className="flex items-center justify-between w-full">

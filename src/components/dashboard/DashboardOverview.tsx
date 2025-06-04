@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ import { useDashboardStats } from '../../hooks/useDashboardStats';
 
 const DashboardOverview: React.FC = () => {
   const { stats, loading } = useDashboardStats();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -50,7 +52,7 @@ const DashboardOverview: React.FC = () => {
       <h2 className="text-2xl font-bold text-judicial-dark">لوحة المعلومات</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="card-hover">
+        <Card className="card-hover cursor-pointer" onClick={() => navigate('/experts')}>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-medium">الخبراء المسجلين</CardTitle>
             <Users className="h-5 w-5 text-judicial-primary" />
@@ -65,7 +67,7 @@ const DashboardOverview: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="card-hover">
+        <Card className="card-hover cursor-pointer" onClick={() => navigate('/cases')}>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-medium">القضايا النشطة</CardTitle>
             <FileText className="h-5 w-5 text-judicial-primary" />
@@ -83,7 +85,7 @@ const DashboardOverview: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="card-hover">
+        <Card className="card-hover cursor-pointer" onClick={() => navigate('/cases')}>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-medium">القضايا المكتملة</CardTitle>
             <CheckCircle className="h-5 w-5 text-judicial-primary" />
@@ -101,7 +103,7 @@ const DashboardOverview: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="card-hover">
+        <Card className="card-hover cursor-pointer" onClick={() => navigate('/cases')}>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-medium">القضايا المعلقة</CardTitle>
             <Clock className="h-5 w-5 text-judicial-primary" />
@@ -119,7 +121,7 @@ const DashboardOverview: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="card-hover">
+        <Card className="card-hover cursor-pointer" onClick={() => navigate('/complaints')}>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-medium">الشكاوى المفتوحة</CardTitle>
             <Calendar className="h-5 w-5 text-judicial-primary" />
@@ -134,7 +136,7 @@ const DashboardOverview: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="card-hover">
+        <Card className="card-hover cursor-pointer" onClick={() => navigate('/inheritance')}>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-medium">قضايا المواريث</CardTitle>
             <Gavel className="h-5 w-5 text-judicial-primary" />

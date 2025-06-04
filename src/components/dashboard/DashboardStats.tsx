@@ -1,6 +1,8 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { StatusCard } from '@/components/ui/status-card';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { 
   FileText, 
   Users, 
@@ -13,39 +15,42 @@ import {
 } from 'lucide-react';
 
 const DashboardStats: React.FC = () => {
+  const navigate = useNavigate();
+  const { stats } = useDashboardStats();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <StatusCard
         title="إجمالي القضايا"
-        count={1247}
+        count={stats.totalCases}
         description="القضايا المسجلة"
         icon={Scale}
         variant="primary"
         trend={{
-          value: 12,
-          label: "زيادة هذا الشهر",
+          value: Math.round((stats.activeCases / Math.max(stats.totalCases, 1)) * 100),
+          label: `${stats.activeCases} قضية نشطة`,
           direction: "up"
         }}
         action={{
           label: "عرض التفاصيل",
-          onClick: () => console.log("View cases")
+          onClick: () => navigate("/cases")
         }}
       />
       
       <StatusCard
         title="الخبراء المسجلين"
-        count={89}
+        count={stats.totalExperts}
         description="خبير معتمد"
         icon={Users}
         variant="success"
         trend={{
-          value: 5,
-          label: "خبراء جدد",
+          value: stats.activeExperts,
+          label: "خبير نشط",
           direction: "up"
         }}
         action={{
           label: "إدارة الخبراء",
-          onClick: () => console.log("Manage experts")
+          onClick: () => navigate("/experts")
         }}
       />
       
@@ -62,7 +67,7 @@ const DashboardStats: React.FC = () => {
         }}
         action={{
           label: "عرض الجدول",
-          onClick: () => console.log("View schedule")
+          onClick: () => navigate("/sessions")
         }}
       />
       
@@ -79,7 +84,7 @@ const DashboardStats: React.FC = () => {
         }}
         action={{
           label: "إدارة الإعلانات",
-          onClick: () => console.log("Manage announcements")
+          onClick: () => navigate("/announcements")
         }}
       />
     </div>
