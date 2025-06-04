@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useAnnouncements, Announcement } from '@/hooks/useAnnouncements';
 import { useFilteredAnnouncements } from '@/hooks/useFilteredAnnouncements';
 import JudicialNoticeForm from './JudicialNoticeForm';
+import AnnouncementDetailsDialog from './AnnouncementDetailsDialog';
 
 const JudicialAnnouncements: React.FC = () => {
   const { announcements, isLoading, error, refetch } = useAnnouncements();
@@ -38,6 +39,9 @@ const JudicialAnnouncements: React.FC = () => {
   } = useFilteredAnnouncements(announcements);
   
   const [activeTab, setActiveTab] = useState('announcements');
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   const announcementTypes = [
     'استدعاء خبير',
@@ -93,7 +97,7 @@ const JudicialAnnouncements: React.FC = () => {
   };
 
   const handleViewTable = () => {
-    setActiveTab('table');
+    setViewMode(viewMode === 'table' ? 'cards' : 'table');
   };
 
   const handleDownloadAnnouncement = (announcement: Announcement, fileFormat: 'pdf' | 'word' = 'pdf') => {
@@ -131,8 +135,11 @@ const JudicialAnnouncements: React.FC = () => {
   };
 
   const handleViewDetails = (announcementId: string) => {
-    console.log('عرض تفاصيل الإعلان:', announcementId);
-    // TODO: Implement view details functionality
+    const announcement = filteredAnnouncements.find(a => a.id === announcementId);
+    if (announcement) {
+      setSelectedAnnouncement(announcement);
+      setShowDetailsDialog(true);
+    }
   };
 
   const handlePrintAll = () => {
@@ -261,7 +268,7 @@ const JudicialAnnouncements: React.FC = () => {
             </Button>
             <Button onClick={handleViewTable} variant="outline">
               <Eye className="w-4 h-4 ml-2" />
-              عرض في جدول
+              {viewMode === 'table' ? 'عرض في بطاقات' : 'عرض في جدول'}
             </Button>
             <Button onClick={handlePrintAll}>
               <Printer className="w-4 h-4 ml-2" />
@@ -402,7 +409,7 @@ const JudicialAnnouncements: React.FC = () => {
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-judicial-primary mx-auto mb-4"></div>
                     <p className="text-gray-600">جاري تحميل الإعلانات...</p>
                   </div>
-                ) : (
+                ) : viewMode === 'table' ? (
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -500,6 +507,46 @@ const JudicialAnnouncements: React.FC = () => {
                       </TableBody>
                     </Table>
                   </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredAnnouncements.map((announcement) => (
+                      <div key={announcement.id} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-lg">{announcement.announcementType}</h3>
+                          {getStatusBadge(announcement.status)}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">القضية: {announcement.caseNumber}</p>
+                        <p className="text-gray-700 mb-3 line-clamp-2">{announcement.description}</p>
+                        <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
+                          <span>{announcement.court}</span>
+                          <span>{format(announcement.sessionDate, 'dd/MM/yyyy', { locale: ar })}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewDetails(announcement.id)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handlePrintSingle(announcement)}
+                          >
+                            <Printer className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadAnnouncement(announcement, 'pdf')}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
 
                 {!isLoading && filteredAnnouncements.length === 0 && (
@@ -517,6 +564,13 @@ const JudicialAnnouncements: React.FC = () => {
             <JudicialNoticeForm />
           </TabsContent>
         </Tabs>
+
+        {/* Announcement Details Dialog */}
+        <AnnouncementDetailsDialog
+          open={showDetailsDialog}
+          onOpenChange={setShowDetailsDialog}
+          announcement={selectedAnnouncement}
+        />
       </div>
     </>
   );

@@ -34,6 +34,10 @@ import { Badge } from '@/components/ui/badge';
 import { formatDate } from '../../utils/helpers';
 import { CASE_STATUS } from '../../utils/constants';
 import { Eye, FileText, MoreHorizontal, Search, UserPlus } from 'lucide-react';
+import CaseFormDialog from './CaseFormDialog';
+import CaseDetailsDialog from './CaseDetailsDialog';
+import CaseReportsDialog from './CaseReportsDialog';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock cases data
 const mockCases = [
@@ -88,27 +92,53 @@ const CaseWorkflow: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
-  const [cases] = useState(mockCases);
+  const [cases, setCases] = useState(mockCases);
   const [isLoading, setIsLoading] = useState(false);
+  const [showNewCaseDialog, setShowNewCaseDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showReportsDialog, setShowReportsDialog] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<any>(null);
+  const { toast } = useToast();
   
   const handleAddNewCase = () => {
-    console.log('إضافة قضية جديدة');
-    // TODO: Navigate to case creation form or open modal
+    setShowNewCaseDialog(true);
   };
   
   const handleViewDetails = (caseId: string) => {
-    console.log('عرض تفاصيل القضية:', caseId);
-    // TODO: Navigate to case details page or open modal
+    const caseData = cases.find(c => c.id === caseId);
+    if (caseData) {
+      setSelectedCase(caseData);
+      setShowDetailsDialog(true);
+    }
   };
   
   const handleViewReports = (caseId: string) => {
-    console.log('عرض تقارير القضية:', caseId);
-    // TODO: Navigate to case reports page or open modal
+    setSelectedCase({ id: caseId });
+    setShowReportsDialog(true);
   };
   
   const handleAssignExpert = (caseId: string) => {
-    console.log('تعيين خبير للقضية:', caseId);
-    // TODO: Open expert assignment modal
+    // Simulate expert assignment
+    setCases(prevCases => 
+      prevCases.map(c => 
+        c.id === caseId 
+          ? { ...c, assignedTo: 'خبير جديد', status: CASE_STATUS.ASSIGNED }
+          : c
+      )
+    );
+    toast({
+      title: "تم تعيين الخبير",
+      description: "تم تعيين خبير للقضية بنجاح",
+    });
+  };
+
+  const handleNewCaseSuccess = () => {
+    // Refresh cases list or add new case
+    toast({
+      title: "تم إنشاء القضية",
+      description: "تم إنشاء القضية الجديدة بنجاح",
+    });
+    // In a real app, you would refetch the cases here
   };
   
   const filteredCases = cases.filter(caseItem => {
@@ -293,6 +323,25 @@ const CaseWorkflow: React.FC = () => {
           </Table>
         </div>
       </CardContent>
+
+      {/* Dialogs */}
+      <CaseFormDialog
+        open={showNewCaseDialog}
+        onOpenChange={setShowNewCaseDialog}
+        onSuccess={handleNewCaseSuccess}
+      />
+      
+      <CaseDetailsDialog
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+        caseData={selectedCase}
+      />
+      
+      <CaseReportsDialog
+        open={showReportsDialog}
+        onOpenChange={setShowReportsDialog}
+        caseId={selectedCase?.id || ''}
+      />
     </Card>
   );
 };

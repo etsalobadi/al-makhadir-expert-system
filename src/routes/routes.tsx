@@ -10,6 +10,7 @@ import Inheritance from '../pages/Inheritance';
 import Complaints from '../pages/Complaints';
 import Reports from '../pages/Reports';
 import Settings from '../pages/Settings';
+import Profile from '../pages/Profile';
 import Sessions from '../pages/Sessions';
 import Announcements from '../pages/Announcements';
 import ElectronicServicesPage from '../pages/ElectronicServices';
@@ -100,6 +101,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ModernLayout>
             <Settings />
+          </ModernLayout>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <ModernLayout>
+            <Profile />
           </ModernLayout>
         } 
       />

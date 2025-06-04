@@ -14,12 +14,14 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { LogOut, User, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 import NotificationsDropdown from './NotificationsDropdown';
 import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
 
 const ModernHeader: React.FC = () => {
   const { user, logout, userRoles } = useAuth();
+  const navigate = useNavigate();
 
   const getUserDisplayName = () => {
     return user?.email?.split('@')[0] || 'المستخدم';
@@ -101,11 +103,17 @@ const ModernHeader: React.FC = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenuItem 
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => navigate('/profile')}
+                >
                   <User className="w-4 h-4" />
                   <span>الملف الشخصي</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenuItem 
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => navigate('/settings')}
+                >
                   <Settings className="w-4 h-4" />
                   <span>الإعدادات</span>
                 </DropdownMenuItem>
