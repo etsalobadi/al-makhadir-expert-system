@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useUserSettings } from '@/hooks/useUserSettings';
+import { useFileUpload } from '@/hooks/useFileUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Mail, Phone, MapPin, Calendar, Edit, Upload, Loader2, Save, Key } from 'lucide-react';
 
@@ -14,6 +16,10 @@ const Profile: React.FC = () => {
   const { user, userRoles } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Use hooks for better functionality
+  const { settings, updateSettings, isUpdating } = useUserSettings();
+  const { uploadFile, uploading } = useFileUpload();
   
   // Form state
   const [formData, setFormData] = useState({
@@ -30,39 +36,23 @@ const Profile: React.FC = () => {
     confirmPassword: ''
   });
   
-  const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState('');
 
-  // Load user settings on component mount
+  // Load user settings when settings are available
   useEffect(() => {
-    if (user) {
-      loadUserSettings();
+    if (settings) {
+      const nameParts = settings.name?.split(' ') || [];
+      setFormData({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        phone: settings.phone || '',
+        department: '',
+        address: ''
+      });
     }
-  }, [user]);
-
-  const loadUserSettings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (data) {
-        setFormData({
-          firstName: data.name?.split(' ')[0] || '',
-          lastName: data.name?.split(' ').slice(1).join(' ') || '',
-          phone: data.phone || '',
-          department: '',
-          address: ''
-        });
-      }
-    } catch (error) {
-      console.error('Error loading user settings:', error);
-    }
-  };
+  }, [settings]);
 
   const getUserDisplayName = () => {
     const fullName = `${formData.firstName} ${formData.lastName}`.trim();
@@ -102,24 +92,11 @@ const Profile: React.FC = () => {
 
   const handleSaveProfile = async () => {
     try {
-      setIsLoading(true);
-      
       const fullName = `${formData.firstName} ${formData.lastName}`.trim();
       
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: user?.id,
-          name: fullName,
-          email: user?.email,
-          phone: formData.phone
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "تم حفظ التغييرات بنجاح",
-        description: "تم تحديث بياناتك الشخصية"
+      await updateSettings({
+        name: fullName,
+        phone: formData.phone
       });
       
       setIsEditMode(false);
@@ -130,8 +107,6 @@ const Profile: React.FC = () => {
         description: "حدث خطأ أثناء حفظ التغييرات",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -154,8 +129,6 @@ const Profile: React.FC = () => {
         });
         return;
       }
-
-      setIsLoading(true);
 
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword
@@ -181,8 +154,6 @@ const Profile: React.FC = () => {
         description: "حدث خطأ أثناء تغيير كلمة المرور",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -191,25 +162,26 @@ const Profile: React.FC = () => {
     if (!file) return;
 
     try {
-      setIsLoading(true);
+      const result = await uploadFile(file, `avatars/${user?.id}`);
       
-      // Simulate file upload
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "تم رفع الصورة بنجاح",
-        description: "تم تحديث صورة الملف الشخصي"
-      });
+      if (result) {
+        setAvatarUrl(result.url);
+        toast({
+          title: "تم رفع الصورة بنجاح",
+          description: "تم تحديث صورة الملف الشخصي"
+        });
+      }
     } catch (error) {
+      console.error('Error uploading avatar:', error);
       toast({
         title: "خطأ في رفع الصورة",
         description: "حدث خطأ أثناء رفع الصورة",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  const isLoading = isUpdating || uploading;
 
   return (
     <div className="space-y-6">
@@ -390,7 +362,17 @@ const Profile: React.FC = () => {
                   variant="outline"
                   onClick={() => {
                     setIsEditMode(false);
-                    loadUserSettings(); // Reset form
+                    // Reset form data to original settings
+                    if (settings) {
+                      const nameParts = settings.name?.split(' ') || [];
+                      setFormData({
+                        firstName: nameParts[0] || '',
+                        lastName: nameParts.slice(1).join(' ') || '',
+                        phone: settings.phone || '',
+                        department: '',
+                        address: ''
+                      });
+                    }
                   }}
                   disabled={isLoading}
                 >
