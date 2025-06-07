@@ -162,15 +162,33 @@ const Profile: React.FC = () => {
     if (!file) return;
 
     try {
-      const result = await uploadFile(file, `avatars/${user?.id}`);
-      
-      if (result) {
-        setAvatarUrl(result.url);
-        toast({
-          title: "تم رفع الصورة بنجاح",
-          description: "تم تحديث صورة الملف الشخصي"
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          upsert: true
         });
-      }
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      setAvatarUrl(publicUrl);
+      
+      // Save avatar URL to user settings
+      await updateSettings({
+        ...settings,
+        avatar_url: publicUrl
+      });
+
+      toast({
+        title: "تم رفع الصورة بنجاح",
+        description: "تم تحديث صورة الملف الشخصي"
+      });
     } catch (error) {
       console.error('Error uploading avatar:', error);
       toast({
