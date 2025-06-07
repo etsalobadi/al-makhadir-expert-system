@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,10 +22,11 @@ import ThemeToggle from './ThemeToggle';
 
 const ModernHeader: React.FC = () => {
   const { user, logout, userRoles } = useAuth();
+  const { settings } = useUserSettings();
   const navigate = useNavigate();
 
   const getUserDisplayName = () => {
-    return user?.email?.split('@')[0] || 'المستخدم';
+    return settings?.name || user?.email?.split('@')[0] || 'المستخدم';
   };
 
   const getRoleDisplayName = (roles: string[]) => {
@@ -88,7 +90,7 @@ const ModernHeader: React.FC = () => {
                     </div>
                   </div>
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src="" alt={getUserDisplayName()} />
+                    <AvatarImage src={settings?.avatar_url || ""} alt={getUserDisplayName()} />
                     <AvatarFallback className="bg-blue-600 text-white text-sm">
                       {getUserDisplayName().charAt(0)}
                     </AvatarFallback>

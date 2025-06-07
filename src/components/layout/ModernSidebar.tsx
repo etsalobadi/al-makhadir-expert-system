@@ -193,7 +193,7 @@ const ModernSidebar: React.FC = () => {
                       </Button>
                     </CollapsibleTrigger>
                     
-                    <CollapsibleContent className="space-y-1 mr-2">
+                    <CollapsibleContent className="space-y-1 ml-2">
                       {group.items.map((item) => {
                         if (!hasAccess(item.roles)) return null;
                         
@@ -205,14 +205,14 @@ const ModernSidebar: React.FC = () => {
                             <Button
                               variant="ghost"
                               className={cn(
-                                "w-full justify-start gap-3 text-base font-medium transition-all duration-200",
+                                "w-full justify-between text-base font-medium transition-all duration-200",
                                 isActive
                                   ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg"
                                   : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                               )}
                             >
-                              <IconComponent className="w-5 h-5 flex-shrink-0" />
                               <span>{item.name}</span>
+                              <IconComponent className="w-5 h-5 flex-shrink-0" />
                             </Button>
                           </Link>
                         );
@@ -274,7 +274,7 @@ const ModernSidebar: React.FC = () => {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 right-4 z-50 md:hidden bg-white shadow-lg"
+        className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-lg"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
       >
         {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -290,17 +290,17 @@ const ModernSidebar: React.FC = () => {
 
       {/* Desktop Sidebar */}
       <div className={cn(
-        "hidden md:flex flex-col h-screen bg-gradient-to-b from-gray-800 to-gray-900 border-l border-gray-700 transition-all duration-300 shadow-xl",
+        "hidden md:flex flex-col h-screen bg-gradient-to-b from-gray-800 to-gray-900 border-r border-gray-700 transition-all duration-300 shadow-xl",
         isCollapsed ? "w-16" : "w-64"
-      )}>
+      )} dir="rtl">
         {/* Collapse Toggle */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -left-4 top-6 bg-white border border-gray-300 shadow-sm z-10 hover:bg-gray-50"
+          className="absolute -right-4 top-6 bg-white border border-gray-300 shadow-sm z-10 hover:bg-gray-50"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 rotate-180" />}
+          {isCollapsed ? <ChevronRight className="w-4 h-4 rotate-180" /> : <ChevronRight className="w-4 h-4" />}
         </Button>
 
         <SidebarContent />
@@ -308,9 +308,9 @@ const ModernSidebar: React.FC = () => {
 
       {/* Mobile Sidebar */}
       <div className={cn(
-        "fixed top-0 right-0 h-full w-80 bg-gradient-to-b from-gray-800 to-gray-900 border-l border-gray-700 z-50 transform transition-transform duration-300 md:hidden shadow-2xl",
-        isMobileOpen ? "translate-x-0" : "translate-x-full"
-      )}>
+        "fixed top-0 left-0 h-full w-80 bg-gradient-to-b from-gray-800 to-gray-900 border-r border-gray-700 z-50 transform transition-transform duration-300 md:hidden shadow-2xl",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full"
+      )} dir="rtl">
         <SidebarContent />
       </div>
     </>
