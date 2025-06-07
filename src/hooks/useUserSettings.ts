@@ -11,6 +11,7 @@ export interface UserSettings {
   name?: string;
   email?: string;
   phone?: string;
+  avatar_url?: string;
   language: string;
   timezone: string;
   notifications: {
@@ -36,6 +37,7 @@ const defaultSettings: Omit<UserSettings, 'id' | 'user_id'> = {
   name: '',
   email: '',
   phone: '',
+  avatar_url: '',
   language: 'ar',
   timezone: 'Asia/Riyadh',
   notifications: {

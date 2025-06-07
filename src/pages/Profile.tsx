@@ -51,6 +51,7 @@ const Profile: React.FC = () => {
         department: '',
         address: ''
       });
+      setAvatarUrl(settings.avatar_url || '');
     }
   }, [settings]);
 
@@ -181,7 +182,6 @@ const Profile: React.FC = () => {
       
       // Save avatar URL to user settings
       await updateSettings({
-        ...settings,
         avatar_url: publicUrl
       });
 
