@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { LogIn, Phone, Mail, Eye, EyeOff } from 'lucide-react';
 
 const EnhancedLoginForm: React.FC = () => {
-  const { login, loginWithOTP, verifyOTP, resetPassword, isLoading } = useAuthContext();
+  const { login, loginWithOTP, verifyOTP, resetPassword, signup, isLoading } = useAuthContext();
   const [activeTab, setActiveTab] = useState('email');
   const [userType, setUserType] = useState<'internal' | 'external'>('internal');
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +24,12 @@ const EnhancedLoginForm: React.FC = () => {
   const [otpCode, setOtpCode] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [error, setError] = useState('');
+  
+  // Signup form states
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupName, setSignupName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +117,52 @@ const EnhancedLoginForm: React.FC = () => {
     }
   };
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    if (!signupEmail || !signupPassword || !signupName) {
+      setError('يرجى إدخال جميع الحقول المطلوبة');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (signupPassword !== confirmPassword) {
+      setError('كلمات المرور غير متطابقة');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (signupPassword.length < 6) {
+      setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await signup(signupEmail, signupPassword, { name: signupName });
+      setActiveTab('email');
+      setSignupEmail('');
+      setSignupPassword('');
+      setSignupName('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+      
+      if (err.message?.includes('User already registered')) {
+        errorMessage = 'البريد الإلكتروني مسجل مسبقاً';
+      } else if (err.message?.includes('Password should be')) {
+        errorMessage = 'كلمة المرور ضعيفة. يرجى استخدام كلمة مرور أقوى';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const currentlyLoading = isLoading || isSubmitting;
 
   return (
@@ -121,8 +173,9 @@ const EnhancedLoginForm: React.FC = () => {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="email">البريد الإلكتروني</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="email">تسجيل الدخول</TabsTrigger>
+            <TabsTrigger value="signup">إنشاء حساب</TabsTrigger>
             <TabsTrigger value="phone">رقم الهاتف</TabsTrigger>
             <TabsTrigger value="reset">استرداد الحساب</TabsTrigger>
           </TabsList>
@@ -216,6 +269,99 @@ const EnhancedLoginForm: React.FC = () => {
                 )}
               </Button>
             </form>
+          </TabsContent>
+
+          <TabsContent value="signup" className="space-y-4">
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signupName">الاسم الكامل</Label>
+                <Input
+                  id="signupName"
+                  type="text"
+                  value={signupName}
+                  onChange={(e) => setSignupName(e.target.value)}
+                  placeholder="أدخل الاسم الكامل"
+                  disabled={currentlyLoading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="signupEmail">البريد الإلكتروني</Label>
+                <div className="relative">
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="signupEmail"
+                    type="email"
+                    value={signupEmail}
+                    onChange={(e) => setSignupEmail(e.target.value)}
+                    placeholder="أدخل البريد الإلكتروني"
+                    className="pr-10"
+                    autoComplete="email"
+                    disabled={currentlyLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="signupPassword">كلمة المرور</Label>
+                <Input
+                  id="signupPassword"
+                  type="password"
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
+                  placeholder="أدخل كلمة المرور (6 أحرف على الأقل)"
+                  autoComplete="new-password"
+                  disabled={currentlyLoading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="أعد إدخال كلمة المرور"
+                  autoComplete="new-password"
+                  disabled={currentlyLoading}
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full bg-judicial-primary hover:bg-judicial-primary/90"
+                disabled={currentlyLoading}
+              >
+                {currentlyLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-t-0 border-l-0 border-white"></span>
+                    جاري إنشاء الحساب...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <LogIn className="h-4 w-4" /> إنشاء حساب جديد
+                  </span>
+                )}
+              </Button>
+            </form>
+
+            <div className="text-center">
+              <Button
+                variant="link"
+                className="text-judicial-primary"
+                onClick={() => setActiveTab('email')}
+                disabled={currentlyLoading}
+              >
+                لديك حساب بالفعل؟ تسجيل الدخول
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="phone" className="space-y-4">
@@ -322,7 +468,12 @@ const EnhancedLoginForm: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             ليس لديك حساب؟{' '}
-            <Button variant="link" className="p-0 h-auto text-judicial-primary" disabled={currentlyLoading}>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-judicial-primary" 
+              disabled={currentlyLoading}
+              onClick={() => setActiveTab('signup')}
+            >
               إنشاء حساب جديد
             </Button>
           </p>
