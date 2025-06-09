@@ -688,6 +688,36 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -789,6 +819,14 @@ export type Database = {
         | "admin"
         | "staff"
         | "judge"
+        | "expert"
+        | "notary"
+        | "inheritance_officer"
+      user_role_enum:
+        | "admin"
+        | "judge"
+        | "staff"
+        | "user"
         | "expert"
         | "notary"
         | "inheritance_officer"
@@ -911,6 +949,15 @@ export const Constants = {
         "admin",
         "staff",
         "judge",
+        "expert",
+        "notary",
+        "inheritance_officer",
+      ],
+      user_role_enum: [
+        "admin",
+        "judge",
+        "staff",
+        "user",
         "expert",
         "notary",
         "inheritance_officer",

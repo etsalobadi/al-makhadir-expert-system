@@ -86,4 +86,10 @@ export const NAVIGATION_ITEMS = [
     icon: 'Settings',
     roles: [USER_ROLES.ADMIN],
   },
+  {
+    name: 'إدارة الأدوار',
+    path: '/role-management',
+    icon: 'UserCheck',
+    roles: [USER_ROLES.ADMIN],
+  },
 ];

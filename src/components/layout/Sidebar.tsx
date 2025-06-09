@@ -103,7 +103,7 @@ const Sidebar: React.FC = () => {
         <div className="bg-judicial-primary/50 p-3 rounded-md text-sm">
           <p className="font-bold text-judicial-secondary mb-1">الدعم الفني</p>
           <p>لطلب المساعدة يرجى التواصل مع الدعم الفني</p>
-          <p className="mt-1">هاتف: 123-456-789</p>
+          <p className="mt-1">هاتف: +967717111021</p>
         </div>
       </div>
     </div>

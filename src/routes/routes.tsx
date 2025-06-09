@@ -17,6 +17,7 @@ import ElectronicServicesPage from '../pages/ElectronicServices';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
 import CreateUsersPage from '../pages/CreateUsers';
+import RoleManagementPage from '../pages/RoleManagement';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -109,6 +110,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ModernLayout>
             <Profile />
+          </ModernLayout>
+        } 
+      />
+      <Route 
+        path="/role-management" 
+        element={
+          <ModernLayout>
+            <RoleManagementPage />
           </ModernLayout>
         } 
       />
